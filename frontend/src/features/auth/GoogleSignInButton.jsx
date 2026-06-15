@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { configApi } from '../../services/configApi.js';
 import { loginWithGoogle } from './authSlice.js';
 import { Spinner } from '../../components/ui';
+import { useTranslation } from '../../i18n';
 
 let scriptPromise = null;
 function loadGsi() {
@@ -23,9 +24,10 @@ function loadGsi() {
 }
 
 export function GoogleSignInButton() {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const ref = useRef(null);
-  const [error, setError] = useState(null);
+  const [errorKey, setErrorKey] = useState(null);
   const { data: config, isLoading } = useQuery({ queryKey: ['config'], queryFn: configApi.get });
   const clientId = config?.googleClientId;
 
@@ -54,7 +56,7 @@ export function GoogleSignInButton() {
           width: 280,
         });
       })
-      .catch(() => setError('Could not load Google sign-in. Check your connection.'));
+      .catch(() => setErrorKey('login.googleLoadError'));
 
     return () => {
       cancelled = true;
@@ -70,14 +72,14 @@ export function GoogleSignInButton() {
   if (!config?.googleClientId) {
     return (
       <p className="muted" style={{ maxWidth: '34ch' }}>
-        Google sign-in isn’t configured yet. Set <code>GOOGLE_CLIENT_ID</code> on the server.
+        {t('login.googleNotConfigured')}
       </p>
     );
   }
   return (
     <div className="stack" style={{ alignItems: 'center' }}>
       <div ref={ref} />
-      {error && <p className="field__error">{error}</p>}
+      {errorKey && <p className="field__error">{t(errorKey)}</p>}
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { DOCUMENT_TYPE_LABELS } from '@pepetrip/shared';
 import {
   useDocuments,
   useUploadDocument,
@@ -90,7 +89,7 @@ export function DocumentsPanel({ tripId }) {
                     <span style={{ minWidth: 0 }}>
                       <strong className="doc-row__title">{doc.title || doc.filename}</strong>
                       <div className="muted" style={{ fontSize: '0.8rem' }}>
-                        {DOCUMENT_TYPE_LABELS[doc.type] || t('documents.typeFallback')}
+                        {doc.type ? t(`documentTypes.${doc.type}`) : t('documents.typeFallback')}
                       </div>
                     </span>
                   </a>

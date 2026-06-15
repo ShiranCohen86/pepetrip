@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { createTripSchema, TRAVEL_STYLES, TRAVEL_STYLE_LABELS, CURRENCIES } from '@pepetrip/shared';
+import { createTripSchema, TRAVEL_STYLES, CURRENCIES } from '@pepetrip/shared';
 import { tripApi } from '../services/tripApi.js';
 import { tripKeys } from '../features/trips/tripQueries.js';
 import { Button, Icon, Spinner, useToast } from '../components/ui';
@@ -198,7 +198,7 @@ export default function CreateTripPage() {
                   aria-pressed={travelStyle === style}
                   onClick={() => setValue('travelStyle', style, { shouldValidate: true })}
                 >
-                  {TRAVEL_STYLE_LABELS[style]}
+                  {t(`styles.${style}`)}
                 </button>
               ))}
             </div>
@@ -229,7 +229,7 @@ export default function CreateTripPage() {
                 start: watch('startDate'),
                 end: watch('endDate'),
                 travelers: watch('travelers'),
-                style: TRAVEL_STYLE_LABELS[travelStyle],
+                style: t(`styles.${travelStyle}`),
               })}
             </div>
           </div>
