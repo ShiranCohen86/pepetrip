@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import {
   useTrip,
   useGenerate,
@@ -18,10 +19,14 @@ import { DocumentsPanel } from '../features/documents/DocumentsPanel.jsx';
 import { ExpensesPanel } from '../features/expenses/ExpensesPanel.jsx';
 import { PackingPanel } from '../features/packing/PackingPanel.jsx';
 import { WeatherStrip } from '../features/weather/WeatherStrip.jsx';
+import { TripPrintView } from '../features/trips/TripPrintView.jsx';
+import { ShareTripSheet } from '../features/trips/ShareTripSheet.jsx';
+import { selectUser } from '../features/auth/authSlice.js';
 import { Button, Icon, Spinner, EmptyState, useToast } from '../components/ui';
 import { useDevice } from '../hooks/responsive';
 import { useTranslation } from '../i18n';
 import { formatDateRange, sumTripCost, formatCurrency, tripEmoji } from '../utils/format.js';
+import { downloadIcs } from '../utils/export.js';
 
 // Lazy-load the map: MapLibre is heavy, so it loads only when the Map tab opens.
 const TripMap = lazy(() =>
@@ -45,6 +50,7 @@ export default function TripDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const user = useSelector(selectUser);
   const { t, isRTL } = useTranslation();
   const { isDesktop, isLargeDesktop } = useDevice();
   const twoPane = isDesktop || isLargeDesktop; // ≥1024px → split itinerary + panel
@@ -80,6 +86,7 @@ export default function TripDetailPage() {
   const [sheet, setSheet] = useState(null); // null | { dayId, activity? }
   const [tab, setTab] = useState('plan'); // single-pane (mobile/tablet)
   const [asideTab, setAsideTab] = useState('map'); // right pane (desktop)
+  const [shareOpen, setShareOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -100,6 +107,7 @@ export default function TripDetailPage() {
   const cost = sumTripCost(trip);
   const currency = trip.currency || trip.budget?.currency || 'USD';
   const hasItinerary = (trip.days || []).some((d) => d.activities?.length);
+  const isOwner = String(trip.ownerId) === String(user?.id);
 
   const handleSaveActivity = async (body) => {
     try {
@@ -135,6 +143,21 @@ export default function TripDetailPage() {
           <Icon name="sparkles" size={18} />{' '}
           {hasItinerary ? t('common.regenerate') : t('createTrip.generate')}
         </Button>
+        {hasItinerary && (
+          <>
+            <Button variant="ghost" onClick={() => window.print()}>
+              <Icon name="printer" size={16} /> {t('tripDetail.print')}
+            </Button>
+            <Button variant="ghost" onClick={() => downloadIcs(trip)}>
+              <Icon name="download" size={16} /> {t('tripDetail.addToCalendar')}
+            </Button>
+          </>
+        )}
+        {isOwner && (
+          <Button variant="ghost" onClick={() => setShareOpen(true)}>
+            <Icon name="share" size={16} /> {t('share.button')}
+          </Button>
+        )}
         <Button variant="danger" onClick={handleDeleteTrip} loading={deleteTrip.isPending}>
           <Icon name="trash" size={16} /> {t('common.delete')}
         </Button>
@@ -310,6 +333,10 @@ export default function TripDetailPage() {
         saving={addActivity.isPending || updateActivity.isPending}
         onSave={handleSaveActivity}
       />
+
+      {isOwner && <ShareTripSheet open={shareOpen} onClose={() => setShareOpen(false)} trip={trip} />}
+
+      {hasItinerary && <TripPrintView trip={trip} />}
     </div>
   );
 }

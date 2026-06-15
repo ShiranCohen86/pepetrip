@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { convertCurrency } from '@pepetrip/shared';
 import {
   useExpenses,
   useCreateExpense,
@@ -39,6 +40,8 @@ export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
     ? Math.min(100, Math.round((summary.total / summary.budget) * 100))
     : 0;
   const over = summary.budget && summary.total > summary.budget;
+  // Some expenses may be logged in a different currency than the trip's base.
+  const hasMixedCurrency = expenses.some((e) => e.currency !== summary.currency);
 
   const handleSave = async (body) => {
     try {
@@ -66,6 +69,11 @@ export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
               {formatCurrency(summary.total, summary.currency)}
             </div>
             <div className="muted">{t('expenses.spentAcross', { count: summary.count })}</div>
+            {hasMixedCurrency && (
+              <div className="muted" style={{ fontSize: '0.78rem', marginTop: '0.15rem' }}>
+                {t('expenses.convertedNote', { currency: summary.currency })}
+              </div>
+            )}
           </div>
           {summary.budget > 0 && (
             <div className="center">
@@ -123,7 +131,14 @@ export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
                   {e.date ? ` · ${formatDate(e.date)}` : ''}
                 </div>
               </button>
-              <span className="expense-row__amount">{formatCurrency(e.amount, e.currency)}</span>
+              <span className="expense-row__amounts">
+                <span className="expense-row__amount">{formatCurrency(e.amount, e.currency)}</span>
+                {e.currency !== summary.currency && (
+                  <span className="expense-row__converted">
+                    ≈ {formatCurrency(convertCurrency(e.amount, e.currency, summary.currency), summary.currency)}
+                  </span>
+                )}
+              </span>
               <button
                 type="button"
                 className="btn--icon"

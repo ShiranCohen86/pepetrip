@@ -43,6 +43,10 @@ tripRouter.patch(
 );
 tripRouter.delete('/:id', validate({ params: idParams }), tripController.remove);
 
+// Public read-only sharing (owner-managed). The public GET lives on shareRoutes.
+tripRouter.post('/:id/share', validate({ params: idParams }), tripController.share);
+tripRouter.delete('/:id/share', validate({ params: idParams }), tripController.unshare);
+
 tripRouter.post(
   '/:id/generate',
   aiLimiter,

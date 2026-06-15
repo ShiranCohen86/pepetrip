@@ -5,12 +5,14 @@ import { tripRouter } from './tripRoutes.js';
 import { statsRouter } from './statsRoutes.js';
 import { integrationsRouter } from './integrationsRoutes.js';
 import { adminRouter } from './adminRoutes.js';
+import { shareRouter } from './shareRoutes.js';
 
 export const apiRouter = Router();
 
 apiRouter.get('/health', health);
 apiRouter.get('/config', publicConfig);
 apiRouter.use('/auth', authRouter);
+apiRouter.use('/shared', shareRouter); // public, no auth
 apiRouter.use('/trips', tripRouter);
 apiRouter.use('/stats', statsRouter);
 apiRouter.use('/integrations', integrationsRouter);

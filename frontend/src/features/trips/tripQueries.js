@@ -73,3 +73,24 @@ function useMemberMutation(id, mutationFn) {
 export const useAddMember = (id) => useMemberMutation(id, (body) => tripApi.addMember(id, body));
 export const useRemoveMember = (id) =>
   useMemberMutation(id, (memberId) => tripApi.removeMember(id, memberId));
+
+/** Share / unshare mutate the trip's shareToken → refetch detail to reflect it. */
+function useShareMutation(id, mutationFn) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn,
+    onSuccess: () => qc.invalidateQueries({ queryKey: tripKeys.detail(id) }),
+  });
+}
+export const useShareTrip = (id) => useShareMutation(id, () => tripApi.share(id));
+export const useUnshareTrip = (id) => useShareMutation(id, () => tripApi.unshare(id));
+
+/** Public read-only shared trip (no auth). */
+export function useSharedTrip(token) {
+  return useQuery({
+    queryKey: ['shared-trip', token],
+    queryFn: () => tripApi.getShared(token),
+    enabled: Boolean(token),
+    retry: false,
+  });
+}

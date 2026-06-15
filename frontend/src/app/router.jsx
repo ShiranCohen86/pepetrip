@@ -9,9 +9,11 @@ import StatsPage from '../pages/StatsPage.jsx';
 import SettingsPage from '../pages/SettingsPage.jsx';
 import AdminPage from '../pages/AdminPage.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
+import SharedTripPage from '../pages/SharedTripPage.jsx';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
+  { path: '/shared/:token', element: <SharedTripPage /> },
   {
     element: <ProtectedRoute />,
     children: [

@@ -36,6 +36,24 @@ export const removeMember = asyncHandler(async (req, res) => {
   sendData(res, { members: trip.members });
 });
 
+export const share = asyncHandler(async (req, res) => {
+  const shareToken = await tripService.createShareLink(req.valid.params.id, req.user.id);
+  recordAudit(req, { action: 'trip.share', entity: 'Trip', entityId: req.valid.params.id });
+  sendData(res, { shareToken });
+});
+
+export const unshare = asyncHandler(async (req, res) => {
+  await tripService.revokeShareLink(req.valid.params.id, req.user.id);
+  recordAudit(req, { action: 'trip.unshare', entity: 'Trip', entityId: req.valid.params.id });
+  sendData(res, { ok: true });
+});
+
+// Public — no auth. Returns a sanitized read-only trip for a share token.
+export const getShared = asyncHandler(async (req, res) => {
+  const trip = await tripService.getSharedTrip(req.params.token);
+  sendData(res, { trip });
+});
+
 export const update = asyncHandler(async (req, res) => {
   const trip = await tripService.updateTrip(req.valid.params.id, req.user.id, req.valid.body);
   recordAudit(req, { action: 'trip.update', entity: 'Trip', entityId: trip.id });

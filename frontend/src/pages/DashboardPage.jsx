@@ -1,4 +1,6 @@
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { TRIP_STATUSES } from '@pepetrip/shared';
 import { useTrips } from '../features/trips/tripQueries.js';
 import { TripCard } from '../features/trips/TripCard.jsx';
 import { Button, EmptyState, Skeleton, Icon } from '../components/ui';
@@ -23,7 +25,36 @@ function LoadingGrid() {
 export default function DashboardPage() {
   const { t } = useTranslation();
   const { data, isLoading, isError, error } = useTrips();
-  const trips = data?.trips ?? [];
+  const trips = useMemo(() => data?.trips ?? [], [data]);
+
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState('all');
+  const [sort, setSort] = useState('newest');
+
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    let list = trips.filter((trip) => {
+      const matchesText =
+        !q ||
+        (trip.title || '').toLowerCase().includes(q) ||
+        (trip.destination?.label || '').toLowerCase().includes(q);
+      const matchesStatus = status === 'all' || trip.status === status;
+      return matchesText && matchesStatus;
+    });
+    list = [...list];
+    if (sort === 'name') {
+      list.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+    } else {
+      list.sort((a, b) => {
+        const da = a.startDate ? new Date(a.startDate).getTime() : 0;
+        const db = b.startDate ? new Date(b.startDate).getTime() : 0;
+        return sort === 'oldest' ? da - db : db - da;
+      });
+    }
+    return list;
+  }, [trips, query, status, sort]);
+
+  const hasTrips = trips.length > 0;
 
   return (
     <div>
@@ -44,7 +75,7 @@ export default function DashboardPage() {
         </EmptyState>
       )}
 
-      {!isLoading && !isError && trips.length === 0 && (
+      {!isLoading && !isError && !hasTrips && (
         <EmptyState
           emoji="🧳"
           title={t('dashboard.emptyTitle')}
@@ -58,12 +89,60 @@ export default function DashboardPage() {
         </EmptyState>
       )}
 
-      {trips.length > 0 && (
-        <div className="trip-grid">
-          {trips.map((trip) => (
-            <TripCard key={trip.id} trip={trip} />
-          ))}
-        </div>
+      {hasTrips && (
+        <>
+          <div className="dash-toolbar">
+            <input
+              type="search"
+              className="input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t('dashboard.searchPlaceholder')}
+              aria-label={t('dashboard.searchPlaceholder')}
+            />
+            <select
+              className="select"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              aria-label={t('dashboard.sortAria')}
+            >
+              <option value="newest">{t('dashboard.sortNewest')}</option>
+              <option value="oldest">{t('dashboard.sortOldest')}</option>
+              <option value="name">{t('dashboard.sortName')}</option>
+            </select>
+          </div>
+
+          <div
+            className="chips"
+            role="group"
+            aria-label={t('dashboard.statusFilterAria')}
+            style={{ marginBottom: '1rem' }}
+          >
+            {['all', ...TRIP_STATUSES].map((s) => (
+              <button
+                key={s}
+                type="button"
+                className={`chip${status === s ? ' is-selected' : ''}`}
+                aria-pressed={status === s}
+                onClick={() => setStatus(s)}
+              >
+                {s === 'all' ? t('dashboard.filterAll') : t(`status.${s}`)}
+              </button>
+            ))}
+          </div>
+
+          {visible.length === 0 ? (
+            <EmptyState emoji="🔍" title={t('dashboard.noResults')}>
+              {t('dashboard.noResultsBody')}
+            </EmptyState>
+          ) : (
+            <div className="trip-grid">
+              {visible.map((trip) => (
+                <TripCard key={trip.id} trip={trip} />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

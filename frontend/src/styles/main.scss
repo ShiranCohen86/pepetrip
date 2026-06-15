@@ -5,6 +5,7 @@
 @use 'typography';
 @use 'layout';
 @use 'utilities';
+@use 'print';
 
 /* ───────────── Base ───────────── */
 body {
@@ -172,6 +173,20 @@ body {
   // Auto-fill scales from 1 column on phones up to many on ultra-wide, with no
   // hardcoded counts and no horizontal overflow (min() guards narrow screens).
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+}
+.dash-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-3;
+  margin-bottom: $space-3;
+
+  .input {
+    flex: 1 1 220px;
+  }
+  .select {
+    flex: 0 0 auto;
+    width: auto;
+  }
 }
 .trip-card {
   @include card;
@@ -766,9 +781,19 @@ body {
   font-weight: 600;
   @include truncate;
 }
+.expense-row__amounts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  white-space: nowrap;
+}
 .expense-row__amount {
   font-weight: 700;
   white-space: nowrap;
+}
+.expense-row__converted {
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
 /* ───────────── Packing ───────────── */

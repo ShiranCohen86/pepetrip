@@ -57,6 +57,20 @@ export default {
     connected: 'מחובר',
     comingSoon: 'בקרוב',
   },
+  share: {
+    button: 'שיתוף',
+    title: 'שיתוף הטיול',
+    description: 'כל מי שיש לו את הקישור יכול לצפות בטיול (לקריאה בלבד).',
+    copy: 'העתקת קישור',
+    copied: 'הקישור הועתק',
+    revoke: 'הפסקת שיתוף',
+    creating: 'יוצר קישור…',
+  },
+  shared: {
+    notFound: 'הטיול המשותף כבר לא זמין',
+    readonly: 'טיול משותף לקריאה בלבד',
+    planYours: 'תכננו טיול משלכם',
+  },
   // תוויות מתורגמות ל-enums מ-@pepetrip/shared.
   styles: {
     luxury: 'יוקרה',
@@ -112,6 +126,15 @@ export default {
     emptyTitle: 'אין עדיין טיולים',
     emptyBody: 'ספרו ל-AI לאן אתם נוסעים וקבלו תוכנית יום-יומית מלאה בשניות.',
     planFirst: 'תכננו את הטיול הראשון שלכם',
+    searchPlaceholder: 'חיפוש טיולים…',
+    sortAria: 'מיון טיולים',
+    sortNewest: 'החדשים ביותר',
+    sortOldest: 'הישנים ביותר',
+    sortName: 'שם (א–ת)',
+    statusFilterAria: 'סינון לפי סטטוס',
+    filterAll: 'הכול',
+    noResults: 'אין טיולים תואמים',
+    noResultsBody: 'נסו חיפוש או סינון אחר.',
   },
   createTrip: {
     title: 'תכנון טיול',
@@ -140,6 +163,8 @@ export default {
     loading: 'טוען טיול…',
     loadError: 'לא הצלחנו לטעון את הטיול הזה',
     backToTrips: 'חזרה לטיולים',
+    print: 'הדפסה / PDF',
+    addToCalendar: 'הוספה ליומן',
     estCost: 'הערכה: {{cost}}',
     ofBudget: ' מתוך תקציב {{budget}}',
     deleteConfirm: 'למחוק את הטיול הזה? לא ניתן לבטל פעולה זו.',
@@ -184,6 +209,7 @@ export default {
   expenses: {
     loadError: 'לא הצלחנו לטעון את ההוצאות',
     spentAcross: 'הוצאו ב-{{count}} הוצאות',
+    convertedNote: 'הסכומים מומרים ל-{{currency}}',
     overBudget: 'חריגה מהתקציב',
     left: 'נותרו',
     addExpense: 'הוספת הוצאה',

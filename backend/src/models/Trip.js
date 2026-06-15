@@ -78,6 +78,9 @@ const tripSchema = new mongoose.Schema(
     days: { type: [daySchema], default: [] },
     members: { type: [memberSchema], default: [] },
     lastGeneratedAt: { type: Date },
+    // Public read-only sharing: opaque token in the URL; null when not shared.
+    shareToken: { type: String, index: true, sparse: true },
+    sharedAt: { type: Date },
   },
   { timestamps: true },
 );
