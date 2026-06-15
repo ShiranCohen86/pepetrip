@@ -34,6 +34,9 @@ export default defineConfig({
         // Don't let the SPA fallback hijack API calls when offline.
         navigateFallbackDenylist: [/^\/api/],
         globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+        // The 3D globe chunk (three-globe + country data) is large and only needed
+        // on the /world route — load it on demand instead of precaching it.
+        globIgnores: ['**/Globe-*.js'],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname.startsWith('/api/v1/trips'),
