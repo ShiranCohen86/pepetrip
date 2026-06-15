@@ -9,6 +9,7 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5"
     />
     <meta name="theme-color" content="#0ea5e9" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="description" content="Plan trips with AI — editable day-by-day itineraries." />
@@ -16,6 +17,19 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Set language + direction before React mounts so RTL (Hebrew) doesn't flash LTR. -->
+    <script>
+      (function () {
+        try {
+          var l = localStorage.getItem('pepetrip.locale');
+          if (!l) l = (navigator.language || 'en').toLowerCase().indexOf('he') === 0 ? 'he' : 'en';
+          document.documentElement.lang = l;
+          document.documentElement.dir = l === 'he' ? 'rtl' : 'ltr';
+        } catch (e) {
+          /* ignore */
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

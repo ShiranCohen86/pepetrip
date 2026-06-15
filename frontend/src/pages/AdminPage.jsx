@@ -4,16 +4,18 @@ import { selectUser } from '../features/auth/authSlice.js';
 import { useAdminOverview } from '../features/admin/adminQueries.js';
 import { Spinner, EmptyState } from '../components/ui';
 import { formatDate } from '../utils/format.js';
+import { useTranslation } from '../i18n';
 
 const COUNTS = [
-  { key: 'users', label: 'Users', emoji: '👤' },
-  { key: 'trips', label: 'Trips', emoji: '🧳' },
-  { key: 'expenses', label: 'Expenses', emoji: '💸' },
-  { key: 'aiGenerations', label: 'AI runs', emoji: '✨' },
-  { key: 'aiTokens', label: 'AI tokens', emoji: '🔢' },
+  { key: 'users', emoji: '👤' },
+  { key: 'trips', emoji: '🧳' },
+  { key: 'expenses', emoji: '💸' },
+  { key: 'aiGenerations', emoji: '✨' },
+  { key: 'aiTokens', emoji: '🔢' },
 ];
 
 export default function AdminPage() {
+  const { t } = useTranslation();
   const user = useSelector(selectUser);
   const isAdmin = user?.roles?.includes('admin');
   const { data, isLoading, isError } = useAdminOverview();
@@ -26,13 +28,13 @@ export default function AdminPage() {
       </div>
     );
   }
-  if (isError || !data) return <EmptyState emoji="⚠️" title="Couldn’t load admin data" />;
+  if (isError || !data) return <EmptyState emoji="⚠️" title={t('admin.loadError')} />;
 
   return (
     <div className="stack">
       <div className="page-head">
-        <h1>Admin</h1>
-        <span className="pill">🛡️ system</span>
+        <h1>{t('admin.title')}</h1>
+        <span className="pill">🛡️ {t('admin.system')}</span>
       </div>
 
       <div className="stat-grid">
@@ -42,14 +44,14 @@ export default function AdminPage() {
               {c.emoji}
             </span>
             <span className="stat-card__value">{(data.counts[c.key] ?? 0).toLocaleString()}</span>
-            <span className="stat-card__label">{c.label}</span>
+            <span className="stat-card__label">{t(`admin.metric.${c.key}`)}</span>
           </div>
         ))}
       </div>
 
       <div>
         <div className="field__label" style={{ marginBottom: '0.5rem' }}>
-          Recent users
+          {t('admin.recentUsers')}
         </div>
         <div className="list">
           {data.recentUsers.map((u) => (
@@ -68,10 +70,12 @@ export default function AdminPage() {
 
       <div>
         <div className="field__label" style={{ marginBottom: '0.5rem' }}>
-          Recent activity (audit log)
+          {t('admin.recentActivity')}
         </div>
         <div className="list">
-          {data.recentAudit.length === 0 && <div className="list__row muted">No activity yet</div>}
+          {data.recentAudit.length === 0 && (
+            <div className="list__row muted">{t('admin.noActivity')}</div>
+          )}
           {data.recentAudit.map((a) => (
             <div key={a.id} className="list__row">
               <span>

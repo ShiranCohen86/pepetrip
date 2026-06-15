@@ -1,0 +1,325 @@
+@use 'tokens' as *;
+@use 'mixins' as *;
+
+// ============================================================
+//  Adaptive app shell
+//  Mobile  : top bar + content + fixed bottom nav
+//  Tablet  : permanent icon rail + content
+//  Desktop : permanent full sidebar + content
+//  The correct nav is mounted by AppShell via useDevice(); this file only
+//  styles each variant. Flex row + logical properties => RTL flips for free.
+// ============================================================
+.app {
+  min-height: 100%;
+  display: flex;
+  align-items: stretch;
+}
+.app__body {
+  flex: 1;
+  min-width: 0; // prevents flex children from forcing horizontal overflow
+  display: flex;
+  flex-direction: column;
+}
+.app__main {
+  flex: 1;
+  width: 100%;
+  padding-block: var(--section-gap);
+}
+.app__main--with-bottom-nav {
+  padding-bottom: calc(#{$bottom-nav-h} + #{$space-8} + env(safe-area-inset-bottom));
+}
+
+// ───────────── Responsive containers ─────────────
+.container {
+  width: 100%;
+  max-width: $content-max;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.container--wide {
+  max-width: $wide-max;
+}
+.container--ultra {
+  max-width: $ultra-max;
+}
+.container--fluid {
+  max-width: none;
+}
+.measure {
+  max-width: var(--measure);
+}
+
+// ───────────── Sidebar (desktop) / Rail (tablet) ─────────────
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100dvh;
+  flex: 0 0 auto;
+  width: $sidebar-w;
+  z-index: $z-sidebar;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  padding: $space-4 $space-3;
+  padding-top: calc(#{$space-4} + env(safe-area-inset-top));
+  padding-bottom: calc(#{$space-4} + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(14px);
+  border-inline-end: 1px solid var(--border);
+}
+.sidebar--rail {
+  width: $rail-w;
+  align-items: stretch;
+  padding-inline: $space-2;
+}
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-2 $space-4;
+  font-weight: 800;
+  font-size: var(--fs-lg);
+}
+.sidebar--rail .sidebar__brand {
+  justify-content: center;
+  padding-inline: 0;
+  .sidebar__brand-text {
+    display: none;
+  }
+}
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sidebar__spacer {
+  flex: 1;
+}
+.sidebar__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: $space-2;
+  border-top: 1px solid var(--border);
+}
+.sidebar__cta {
+  margin-block: $space-2 $space-3;
+}
+
+.side-link {
+  @include tap;
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-3;
+  border-radius: $radius-md;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  min-height: 40px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  @include hover-hover {
+    &:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+  }
+  &.is-active {
+    background: var(--brand-soft);
+    color: var(--brand-strong);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
+.side-link__label {
+  @include truncate;
+}
+// Rail: stack icon over a tiny label like the bottom nav.
+.sidebar--rail .side-link {
+  flex-direction: column;
+  gap: 2px;
+  padding: $space-2;
+  font-size: 0.64rem;
+  text-align: center;
+}
+
+// ───────────── Top bar (mobile / tablet header) ─────────────
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: $z-header;
+  height: calc(#{$header-h} + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding-inline: var(--gutter);
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar__title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  @include truncate;
+}
+.topbar__spacer {
+  flex: 1;
+}
+
+// ───────────── Bottom nav (mobile) ─────────────
+.bottom-nav {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: $z-nav;
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  padding: $space-2;
+  padding-bottom: calc(#{$space-2} + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+}
+.nav-tab {
+  @include tap;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: $space-1;
+  border-radius: $radius-md;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-height: $touch-target;
+
+  &.is-active {
+    color: var(--brand);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: -2px;
+  }
+}
+.nav-tab__fab {
+  margin-top: -22px;
+  width: 52px;
+  height: 52px;
+  border-radius: $radius-full;
+  background: var(--brand);
+  color: var(--brand-contrast);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-lg);
+}
+
+// ───────────── Drawer (tablet overlay / secondary nav) ─────────────
+.drawer__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: $z-drawer;
+  background: var(--overlay);
+  animation: fade 0.2s ease;
+}
+.drawer__panel {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: calc(#{$z-drawer} + 1);
+  width: min(82vw, 320px);
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  padding: $space-4 $space-3;
+  padding-top: calc(#{$space-4} + env(safe-area-inset-top));
+  background: var(--surface);
+  border-inline-end: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  overflow-y: auto;
+  animation: drawer-in-start 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[dir='rtl'] .drawer__panel {
+  animation-name: drawer-in-end;
+}
+@keyframes drawer-in-start {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes drawer-in-end {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+// ───────────── Split view (desktop two-pane) ─────────────
+.split {
+  display: grid;
+  gap: var(--gutter);
+  grid-template-columns: 1fr;
+
+  @include up('lg') {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.split__aside {
+  min-width: 0;
+
+  @include up('lg') {
+    position: sticky;
+    top: calc(#{$header-h} + #{$space-4});
+  }
+}
+.split__main {
+  min-width: 0;
+}
+
+// ───────────── Responsive auto grids ─────────────
+// Columns fill available width; --col-min controls the smallest comfortable
+// card before wrapping. min(100%, …) guarantees no horizontal overflow.
+.grid-auto {
+  display: grid;
+  gap: var(--gutter);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--col-min, 240px)), 1fr));
+}
+.grid-auto--sm {
+  --col-min: 160px;
+}
+.grid-auto--lg {
+  --col-min: 320px;
+}
+
+// ───────────── Skip link (a11y) ─────────────
+.skip-link {
+  position: fixed;
+  inset-inline-start: $space-3;
+  top: -200px;
+  z-index: $z-skiplink;
+  padding: $space-2 $space-4;
+  border-radius: $radius-md;
+  background: var(--brand);
+  color: var(--brand-contrast);
+  font-weight: 700;
+  transition: top 0.15s ease;
+
+  &:focus {
+    top: $space-3;
+  }
+}

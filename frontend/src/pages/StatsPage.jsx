@@ -3,19 +3,21 @@ import { useStats } from '../features/stats/statsQueries.js';
 import { Achievements } from '../features/stats/Achievements.jsx';
 import { resolvePlaces } from '../utils/geo.js';
 import { Spinner, EmptyState } from '../components/ui';
+import { useTranslation } from '../i18n';
 
 const Globe = lazy(() => import('../features/stats/Globe.jsx').then((m) => ({ default: m.Globe })));
 
 const STATS = [
-  { key: 'trips', label: 'Trips', emoji: '🧳' },
-  { key: 'countries', label: 'Countries', emoji: '🌍' },
-  { key: 'cities', label: 'Cities', emoji: '🏙️' },
-  { key: 'totalDays', label: 'Travel days', emoji: '📅' },
-  { key: 'upcoming', label: 'Upcoming', emoji: '✈️' },
-  { key: 'distanceKm', label: 'Distance (km)', emoji: '🛰️' },
+  { key: 'trips', emoji: '🧳' },
+  { key: 'countries', emoji: '🌍' },
+  { key: 'cities', emoji: '🏙️' },
+  { key: 'totalDays', emoji: '📅' },
+  { key: 'upcoming', emoji: '✈️' },
+  { key: 'distanceKm', emoji: '🛰️' },
 ];
 
 export default function StatsPage() {
+  const { t } = useTranslation();
   const { data, isLoading, isError } = useStats();
   const [pins, setPins] = useState([]);
 
@@ -39,18 +41,18 @@ export default function StatsPage() {
     return (
       <div className="splash" style={{ minHeight: '40dvh' }}>
         <Spinner size="lg" />
-        <p>Crunching your travels…</p>
+        <p>{t('stats.loading')}</p>
       </div>
     );
   }
   if (isError || !stats) {
-    return <EmptyState emoji="⚠️" title="Couldn’t load your stats" />;
+    return <EmptyState emoji="⚠️" title={t('stats.loadError')} />;
   }
 
   if (stats.trips === 0) {
     return (
-      <EmptyState emoji="🌍" title="Your travel map is empty">
-        Plan your first trip and watch your world fill up.
+      <EmptyState emoji="🌍" title={t('stats.emptyTitle')}>
+        {t('stats.emptyBody')}
       </EmptyState>
     );
   }
@@ -58,7 +60,7 @@ export default function StatsPage() {
   return (
     <div className="stack">
       <div className="page-head">
-        <h1>Your travel world</h1>
+        <h1>{t('stats.title')}</h1>
       </div>
 
       <Suspense
@@ -80,14 +82,13 @@ export default function StatsPage() {
               {s.emoji}
             </span>
             <span className="stat-card__value">{(stats[s.key] ?? 0).toLocaleString()}</span>
-            <span className="stat-card__label">{s.label}</span>
+            <span className="stat-card__label">{t(`stats.metric.${s.key}`)}</span>
           </div>
         ))}
       </div>
 
       <p className="muted center">
-        🟢 visited · 🔵 active · 🟠 planned — pins placed for {pins.length}/{stats.places.length}{' '}
-        destinations.
+        {t('stats.legend', { placed: pins.length, total: stats.places.length })}
       </p>
 
       <Achievements />

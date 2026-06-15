@@ -4,9 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { configApi } from '../../services/configApi.js';
 import { loginDemo } from './authSlice.js';
 import { Button } from '../../components/ui';
+import { useTranslation } from '../../i18n';
 
 /** One-click demo sign-in. Only rendered when the server enables dev login. */
 export function DemoLoginButton() {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -20,7 +22,7 @@ export function DemoLoginButton() {
     try {
       await dispatch(loginDemo()).unwrap();
     } catch (e) {
-      setError(e?.message || 'Demo login failed');
+      setError(e?.message || t('login.demoFailed'));
     } finally {
       setBusy(false);
     }
@@ -29,10 +31,10 @@ export function DemoLoginButton() {
   return (
     <div className="stack" style={{ alignItems: 'center', gap: '0.4rem' }}>
       <Button variant="primary" onClick={onClick} loading={busy}>
-        🧭 Try the demo
+        🧭 {t('login.demoTry')}
       </Button>
       <span className="muted" style={{ fontSize: '0.78rem' }}>
-        No account needed · dev only
+        {t('login.demoHint')}
       </span>
       {error && <p className="field__error">{error}</p>}
     </div>

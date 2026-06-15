@@ -3,6 +3,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { EmptyState, Spinner } from '../../components/ui';
 import { activityEmoji } from '../../utils/format.js';
+import { useTranslation } from '../../i18n';
 
 /** Free raster basemap using OpenStreetMap tiles (attribution required). */
 const OSM_STYLE = {
@@ -48,6 +49,7 @@ async function geocode(label) {
 }
 
 export function TripMap({ trip }) {
+  const { t } = useTranslation();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const [center, setCenter] = useState(trip.destination?.coords ?? null);
@@ -108,14 +110,14 @@ export function TripMap({ trip }) {
     return (
       <div className="splash" style={{ minHeight: '20dvh' }}>
         <Spinner />
-        <p>Locating {trip.destination?.label}…</p>
+        <p>{t('map.locating', { label: trip.destination?.label })}</p>
       </div>
     );
   }
   if (!center) {
     return (
-      <EmptyState emoji="🗺️" title="No map location yet">
-        We couldn’t pinpoint this destination. Add coordinates to activities to see them here.
+      <EmptyState emoji="🗺️" title={t('map.noLocation')}>
+        {t('map.noLocationBody')}
       </EmptyState>
     );
   }
@@ -124,9 +126,7 @@ export function TripMap({ trip }) {
     <div className="stack">
       <div ref={containerRef} className="trip-map" />
       {points.length === 0 && (
-        <p className="muted center">
-          Showing {trip.destination?.label}. Activities with exact coordinates will appear as pins.
-        </p>
+        <p className="muted center">{t('map.showing', { label: trip.destination?.label })}</p>
       )}
     </div>
   );

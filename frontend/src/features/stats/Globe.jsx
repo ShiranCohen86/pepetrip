@@ -2,6 +2,7 @@
 import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+import { usePlatform } from '../../hooks/responsive';
 
 const R = 2;
 
@@ -61,8 +62,17 @@ function World({ points }) {
 }
 
 export function Globe({ points = [] }) {
+  const { isTouch } = usePlatform();
+  // Cap pixel ratio and skip antialiasing on touch / low-end GPUs to keep the
+  // auto-rotating canvas smooth without draining the battery.
+  const dpr = isTouch ? [1, 1.5] : [1, 2];
+
   return (
-    <Canvas camera={{ position: [0, 0, 5.2], fov: 45 }} dpr={[1, 2]}>
+    <Canvas
+      camera={{ position: [0, 0, 5.2], fov: 45 }}
+      dpr={dpr}
+      gl={{ antialias: !isTouch, powerPreference: 'low-power' }}
+    >
       <ambientLight intensity={0.7} />
       <directionalLight position={[5, 3, 5]} intensity={1.1} />
       <World points={points} />

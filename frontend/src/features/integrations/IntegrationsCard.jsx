@@ -1,5 +1,6 @@
 import { useIntegrations } from './integrationQueries.js';
 import { Spinner } from '../../components/ui';
+import { useTranslation } from '../../i18n';
 
 const ICON = {
   gmail: '📧',
@@ -8,6 +9,7 @@ const ICON = {
 };
 
 export function IntegrationsCard() {
+  const { t } = useTranslation();
   const { data, isLoading } = useIntegrations();
   if (isLoading) {
     return (
@@ -35,7 +37,7 @@ export function IntegrationsCard() {
             </div>
           </div>
           <span className={`pill${i.enabled ? ' pill--brand' : ''}`}>
-            {i.enabled ? 'Connected' : 'Coming soon'}
+            {i.enabled ? t('integrations.connected') : t('integrations.comingSoon')}
           </span>
         </div>
       ))}

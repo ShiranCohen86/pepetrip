@@ -3,8 +3,10 @@ import { useSelector } from 'react-redux';
 import { selectUser } from '../auth/authSlice.js';
 import { useAddMember, useRemoveMember } from './tripQueries.js';
 import { Button, Icon, useToast } from '../../components/ui';
+import { useTranslation } from '../../i18n';
 
 export function TripPeople({ trip }) {
+  const { t } = useTranslation();
   const toast = useToast();
   const user = useSelector(selectUser);
   const isOwner = String(trip.ownerId) === String(user?.id);
@@ -34,9 +36,9 @@ export function TripPeople({ trip }) {
               👑
             </span>
             <div>
-              <strong>{isOwner ? 'You' : 'Trip owner'}</strong>
+              <strong>{isOwner ? t('people.you') : t('people.tripOwner')}</strong>
               <div className="muted" style={{ fontSize: '0.85rem' }}>
-                Owner
+                {t('people.owner')}
               </div>
             </div>
           </div>
@@ -50,7 +52,7 @@ export function TripPeople({ trip }) {
               <div>
                 <strong>{m.name || m.email}</strong>
                 <div className="muted" style={{ fontSize: '0.85rem' }}>
-                  {m.email} · {m.role}
+                  {m.email} · {m.role === 'editor' ? t('people.roleEditor') : t('people.roleViewer')}
                 </div>
               </div>
             </div>
@@ -59,7 +61,7 @@ export function TripPeople({ trip }) {
                 type="button"
                 className="btn--icon"
                 onClick={() => removeMember.mutate(m.id, { onError: (err) => toast(err.message) })}
-                aria-label={`Remove ${m.email}`}
+                aria-label={t('people.removeAria', { name: m.email })}
               >
                 <Icon name="x" size={16} />
               </button>
@@ -70,36 +72,36 @@ export function TripPeople({ trip }) {
 
       {isOwner ? (
         <form className="stack" onSubmit={onAdd}>
-          <div className="field__label">Invite by email</div>
+          <div className="field__label">{t('people.inviteByEmail')}</div>
           <div className="row">
             <input
               type="email"
               className="input grow"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="friend@example.com"
-              aria-label="Member email"
+              placeholder={t('people.emailPlaceholder')}
+              aria-label={t('people.memberEmailAria')}
             />
             <select
               className="select"
               style={{ width: 'auto' }}
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              aria-label="Role"
+              aria-label={t('people.roleAria')}
             >
-              <option value="viewer">Viewer</option>
-              <option value="editor">Editor</option>
+              <option value="viewer">{t('people.roleViewer')}</option>
+              <option value="editor">{t('people.roleEditor')}</option>
             </select>
             <Button type="submit" loading={addMember.isPending}>
               <Icon name="plus" size={18} />
             </Button>
           </div>
           <p className="muted" style={{ fontSize: '0.8rem' }}>
-            Invited friends who sign in with that email can view this trip from their dashboard.
+            {t('people.inviteHelp')}
           </p>
         </form>
       ) : (
-        <p className="muted center">Shared with you by the trip owner.</p>
+        <p className="muted center">{t('people.sharedWithYou')}</p>
       )}
     </div>
   );

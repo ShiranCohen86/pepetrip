@@ -2,6 +2,9 @@
 @use 'mixins' as *;
 @use 'reset';
 @use 'themes';
+@use 'typography';
+@use 'layout';
+@use 'utilities';
 
 /* ───────────── Base ───────────── */
 body {
@@ -12,13 +15,6 @@ body {
 
 #root {
   isolation: isolate;
-}
-
-.container {
-  width: 100%;
-  max-width: $content-max;
-  margin-inline: auto;
-  padding-inline: $space-4;
 }
 
 .muted {
@@ -124,88 +120,6 @@ body {
   }
 }
 
-/* ───────────── App shell ───────────── */
-.shell {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.shell__header {
-  position: sticky;
-  top: 0;
-  z-index: $z-header;
-  height: calc(#{$header-h} + env(safe-area-inset-top));
-  padding-top: env(safe-area-inset-top);
-  display: flex;
-  align-items: center;
-  gap: $space-3;
-  padding-inline: $space-4;
-  background: color-mix(in srgb, var(--bg) 86%, transparent);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-}
-.shell__title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  @include truncate;
-}
-.shell__main {
-  flex: 1;
-  width: 100%;
-  padding-block: $space-5;
-  padding-bottom: calc(#{$bottom-nav-h} + #{$space-8} + env(safe-area-inset-bottom));
-}
-.shell__nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: $z-nav;
-  display: flex;
-  justify-content: space-around;
-  padding: $space-2 $space-2;
-  padding-bottom: calc(#{$space-2} + env(safe-area-inset-bottom));
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  backdrop-filter: blur(14px);
-  border-top: 1px solid var(--border);
-}
-.navlink {
-  @include tap;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: $space-1;
-  border-radius: $radius-md;
-  color: var(--text-muted);
-  font-size: 0.7rem;
-  font-weight: 600;
-
-  &.is-active {
-    color: var(--brand);
-  }
-}
-.navlink__fab {
-  margin-top: -22px;
-  width: 52px;
-  height: 52px;
-  border-radius: $radius-full;
-  background: var(--brand);
-  color: var(--brand-contrast);
-  display: grid;
-  place-items: center;
-  box-shadow: var(--shadow-lg);
-}
-
-@include up($bp-lg) {
-  .shell__main {
-    max-width: $wide-max;
-    margin-inline: auto;
-    padding-bottom: $space-12;
-  }
-}
-
 /* ───────────── Splash / spinner ───────────── */
 .splash {
   min-height: 100dvh;
@@ -244,24 +158,20 @@ body {
   justify-content: space-between;
   gap: $space-3;
   margin-bottom: $space-5;
+  flex-wrap: wrap;
 
   h1 {
-    font-size: 1.5rem;
+    font-size: var(--fs-xl);
   }
 }
 
 /* ───────────── Trip cards ───────────── */
 .trip-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: $space-4;
-
-  @include up($bp-md) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  @include up($bp-lg) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  gap: var(--gutter);
+  // Auto-fill scales from 1 column on phones up to many on ultra-wide, with no
+  // hardcoded counts and no horizontal overflow (min() guards narrow screens).
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
 }
 .trip-card {
   @include card;
@@ -293,7 +203,7 @@ body {
 .trip-card__emoji {
   position: absolute;
   top: $space-2;
-  right: $space-3;
+  inset-inline-end: $space-3;
   font-size: 1.4rem;
   opacity: 0.9;
 }
@@ -383,6 +293,39 @@ body {
 }
 
 /* ───────────── Wizard ───────────── */
+.wizard {
+  max-width: 640px;
+  margin-inline: auto;
+}
+.stepper {
+  display: flex;
+  gap: $space-2;
+  margin-bottom: $space-5;
+}
+.stepper__step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.stepper__dot {
+  height: 6px;
+  border-radius: $radius-full;
+  background: var(--surface-2);
+  transition: background 0.25s ease;
+}
+.stepper__step.is-active,
+.stepper__step.is-done {
+  .stepper__dot {
+    background: var(--brand);
+  }
+}
+.stepper__step.is-active {
+  color: var(--text);
+  font-weight: 700;
+}
 .wizard__progress {
   height: 6px;
   border-radius: $radius-full;
@@ -412,7 +355,7 @@ body {
   margin-bottom: $space-5;
 
   h1 {
-    font-size: 1.5rem;
+    font-size: var(--fs-2xl);
   }
 }
 .trip-hero__meta {
@@ -506,6 +449,11 @@ body {
   justify-content: center;
   animation: fade 0.2s ease;
 }
+// Tablet / desktop: center the surface like a modal dialog.
+.sheet__backdrop--center {
+  align-items: center;
+  padding: $space-4;
+}
 .sheet__panel {
   width: 100%;
   max-width: $content-max;
@@ -518,9 +466,25 @@ body {
   max-height: 88dvh;
   overflow-y: auto;
 
-  @include up($bp-md) {
-    border-radius: $radius-xl;
-    margin-bottom: $space-8;
+  &:focus-visible {
+    outline: none;
+  }
+}
+.sheet__panel--modal {
+  max-width: 480px;
+  border-radius: $radius-xl;
+  padding-bottom: $space-5;
+  max-height: 86dvh;
+  animation: modal-in 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes modal-in {
+  from {
+    transform: translateY(8px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
   }
 }
 .sheet__handle {
@@ -601,7 +565,7 @@ body {
   font-size: 3rem;
 }
 .login__title {
-  font-size: 2rem;
+  font-size: var(--fs-3xl);
 }
 .login__tagline {
   color: var(--text-muted);
@@ -640,6 +604,16 @@ body {
   font-weight: 600;
   box-shadow: var(--shadow-lg);
   animation: fade 0.2s ease;
+  max-width: calc(100vw - #{$space-8});
+}
+// No bottom nav on tablet/desktop → dock the toast to the bottom corner.
+[data-device='tablet'] .toast,
+[data-device='desktop'] .toast,
+[data-device='large-desktop'] .toast {
+  left: auto;
+  transform: none;
+  inset-inline-end: $space-5;
+  bottom: $space-5;
 }
 
 .segmented {
@@ -783,7 +757,7 @@ body {
   @include tap;
   flex: 1;
   min-width: 0;
-  text-align: left;
+  text-align: start;
   background: none;
   border: none;
   color: inherit;
@@ -857,15 +831,16 @@ body {
   list-style: none;
   margin: 0;
   padding: 0;
-  border-left: 2px solid var(--border);
-  margin-left: $space-2;
+  border-inline-start: 2px solid var(--border);
+  margin-inline-start: $space-2;
 }
 .timeline__item {
   position: relative;
   display: grid;
   grid-template-columns: 48px 1fr;
   gap: $space-3;
-  padding: 0 0 $space-4 $space-4;
+  padding-block: 0 $space-4;
+  padding-inline-start: $space-4;
 }
 .timeline__time {
   font-size: 0.8rem;
@@ -875,7 +850,7 @@ body {
 }
 .timeline__dot {
   position: absolute;
-  left: -7px;
+  inset-inline-start: -7px;
   top: 4px;
   width: 12px;
   height: 12px;
@@ -901,12 +876,8 @@ body {
 }
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
   gap: $space-3;
-
-  @include up($bp-md) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr));
 }
 .stat-card {
   @include card;
@@ -932,12 +903,8 @@ body {
 /* ───────────── Achievements (Phase 5) ───────────── */
 .badge-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
   gap: $space-3;
-
-  @include up($bp-md) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
 }
 .badge {
   @include card;
@@ -992,15 +959,8 @@ body {
 /* ───────────── Photos (Phase 3) ───────────── */
 .photo-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
   gap: $space-2;
-
-  @include up($bp-sm) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  @include up($bp-lg) {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr));
 }
 .photo {
   position: relative;
@@ -1018,8 +978,7 @@ body {
   }
   figcaption {
     position: absolute;
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     bottom: 0;
     padding: $space-2 $space-3;
     font-size: 0.78rem;
@@ -1031,7 +990,7 @@ body {
 .photo__del {
   position: absolute;
   top: $space-1;
-  right: $space-1;
+  inset-inline-end: $space-1;
   display: grid;
   place-items: center;
   width: 28px;

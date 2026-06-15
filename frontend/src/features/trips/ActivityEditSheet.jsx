@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ACTIVITY_TYPES, ACTIVITY_TYPE_LABELS } from '@pepetrip/shared';
 import { BottomSheet, Button, Icon } from '../../components/ui';
+import { useTranslation } from '../../i18n';
 
 const EMPTY = {
   title: '',
@@ -12,6 +13,7 @@ const EMPTY = {
 };
 
 export function ActivityEditSheet({ open, onClose, activity, currency, saving, onSave }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState(null);
 
@@ -38,7 +40,7 @@ export function ActivityEditSheet({ open, onClose, activity, currency, saving, o
   const submit = (e) => {
     e.preventDefault();
     if (!form.title.trim()) {
-      setError('Title is required');
+      setError(t('activity.titleRequired'));
       return;
     }
     const cost = Number(form.costAmount);
@@ -54,41 +56,46 @@ export function ActivityEditSheet({ open, onClose, activity, currency, saving, o
   };
 
   return (
-    <BottomSheet open={open} onClose={onClose} title={activity ? 'Edit activity' : 'Add activity'}>
+    <BottomSheet
+      open={open}
+      onClose={onClose}
+      title={activity ? t('activity.editTitle') : t('activity.addTitle')}
+    >
       <form className="stack" onSubmit={submit}>
         <div className="field">
           <label className="field__label" htmlFor="a-title">
-            Title
+            {t('activity.title')}
           </label>
           <input
             id="a-title"
             className="input"
             value={form.title}
             onChange={set('title')}
-            placeholder="e.g. Fushimi Inari Shrine"
+            placeholder={t('activity.titlePlaceholder')}
           />
           {error && <span className="field__error">{error}</span>}
         </div>
         <div className="field__row">
           <div className="field">
             <label className="field__label" htmlFor="a-type">
-              Type
+              {t('activity.type')}
             </label>
             <select id="a-type" className="select" value={form.type} onChange={set('type')}>
-              {ACTIVITY_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {ACTIVITY_TYPE_LABELS[t]}
+              {ACTIVITY_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {ACTIVITY_TYPE_LABELS[type]}
                 </option>
               ))}
             </select>
           </div>
           <div className="field">
             <label className="field__label" htmlFor="a-cost">
-              Cost ({currency})
+              {t('activity.cost', { currency })}
             </label>
             <input
               id="a-cost"
               type="number"
+              inputMode="decimal"
               min="0"
               className="input"
               value={form.costAmount}
@@ -100,7 +107,7 @@ export function ActivityEditSheet({ open, onClose, activity, currency, saving, o
         <div className="field__row">
           <div className="field">
             <label className="field__label" htmlFor="a-start">
-              Start
+              {t('activity.start')}
             </label>
             <input
               id="a-start"
@@ -112,7 +119,7 @@ export function ActivityEditSheet({ open, onClose, activity, currency, saving, o
           </div>
           <div className="field">
             <label className="field__label" htmlFor="a-end">
-              End
+              {t('activity.end')}
             </label>
             <input
               id="a-end"
@@ -125,18 +132,18 @@ export function ActivityEditSheet({ open, onClose, activity, currency, saving, o
         </div>
         <div className="field">
           <label className="field__label" htmlFor="a-desc">
-            Notes
+            {t('activity.notes')}
           </label>
           <textarea
             id="a-desc"
             className="textarea"
             value={form.description}
             onChange={set('description')}
-            placeholder="Optional details"
+            placeholder={t('activity.notesPlaceholder')}
           />
         </div>
         <Button type="submit" variant="primary" block loading={saving}>
-          <Icon name="check" size={18} /> Save
+          <Icon name="check" size={18} /> {t('common.save')}
         </Button>
       </form>
     </BottomSheet>

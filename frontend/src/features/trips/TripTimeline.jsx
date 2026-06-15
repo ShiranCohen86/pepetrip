@@ -1,13 +1,15 @@
 import { EmptyState } from '../../components/ui';
 import { activityEmoji, formatCurrency, formatDate } from '../../utils/format.js';
+import { useTranslation } from '../../i18n';
 
 /** Read-only chronological view of the itinerary: days → timed activities. */
 export function TripTimeline({ trip }) {
+  const { t } = useTranslation();
   const days = (trip.days ?? []).filter((d) => d.activities?.length);
   if (days.length === 0) {
     return (
-      <EmptyState emoji="🕰️" title="Nothing to show yet">
-        Generate or add activities to see your trip on a timeline.
+      <EmptyState emoji="🕰️" title={t('timeline.empty')}>
+        {t('timeline.emptyBody')}
       </EmptyState>
     );
   }
@@ -17,7 +19,7 @@ export function TripTimeline({ trip }) {
       {days.map((day) => (
         <div key={day.id} className="timeline__day">
           <div className="timeline__day-head">
-            <span className="timeline__daynum">Day {day.dayNumber}</span>
+            <span className="timeline__daynum">{t('itinerary.day', { n: day.dayNumber })}</span>
             <span className="muted">
               {formatDate(day.date, { weekday: 'long', month: 'short', day: 'numeric' })}
             </span>

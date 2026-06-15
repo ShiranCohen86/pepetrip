@@ -8,6 +8,7 @@ import {
   CURRENCIES,
 } from '@pepetrip/shared';
 import { BottomSheet, Button } from '../../components/ui';
+import { useTranslation } from '../../i18n';
 
 const emptyDefaults = (currency) => ({
   label: '',
@@ -19,6 +20,7 @@ const emptyDefaults = (currency) => ({
 });
 
 export function ExpenseEditSheet({ open, onClose, expense, currency = 'USD', saving, onSave }) {
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
@@ -50,17 +52,21 @@ export function ExpenseEditSheet({ open, onClose, expense, currency = 'USD', sav
   const category = watch('category');
 
   return (
-    <BottomSheet open={open} onClose={onClose} title={expense ? 'Edit expense' : 'Add expense'}>
+    <BottomSheet
+      open={open}
+      onClose={onClose}
+      title={expense ? t('expenses.editTitle') : t('expenses.addTitle')}
+    >
       <form className="stack" onSubmit={handleSubmit(onSave)}>
         <div className="field">
           <label className="field__label" htmlFor="exp-label">
-            What was it for?
+            {t('expenses.whatFor')}
           </label>
           <input
             id="exp-label"
             className="input"
             {...register('label')}
-            placeholder="Dinner, taxi…"
+            placeholder={t('expenses.whatForPlaceholder')}
           />
           {errors.label && <span className="field__error">{errors.label.message}</span>}
         </div>
@@ -68,11 +74,12 @@ export function ExpenseEditSheet({ open, onClose, expense, currency = 'USD', sav
         <div className="field__row">
           <div className="field">
             <label className="field__label" htmlFor="exp-amount">
-              Amount
+              {t('expenses.amount')}
             </label>
             <input
               id="exp-amount"
               type="number"
+              inputMode="decimal"
               step="0.01"
               className="input"
               {...register('amount', { valueAsNumber: true })}
@@ -81,7 +88,7 @@ export function ExpenseEditSheet({ open, onClose, expense, currency = 'USD', sav
           </div>
           <div className="field">
             <label className="field__label" htmlFor="exp-currency">
-              Currency
+              {t('expenses.currency')}
             </label>
             <select id="exp-currency" className="select" {...register('currency')}>
               {CURRENCIES.map((c) => (
@@ -94,13 +101,14 @@ export function ExpenseEditSheet({ open, onClose, expense, currency = 'USD', sav
         </div>
 
         <div className="field">
-          <span className="field__label">Category</span>
+          <span className="field__label">{t('expenses.category')}</span>
           <div className="chips">
             {EXPENSE_CATEGORIES.map((c) => (
               <button
                 key={c}
                 type="button"
                 className={`chip${category === c ? ' is-selected' : ''}`}
+                aria-pressed={category === c}
                 onClick={() => setValue('category', c, { shouldValidate: true })}
               >
                 {EXPENSE_CATEGORY_LABELS[c]}
@@ -111,13 +119,13 @@ export function ExpenseEditSheet({ open, onClose, expense, currency = 'USD', sav
 
         <div className="field">
           <label className="field__label" htmlFor="exp-date">
-            Date (optional)
+            {t('expenses.dateOptional')}
           </label>
           <input id="exp-date" type="date" className="input" {...register('date')} />
         </div>
 
         <Button type="submit" variant="primary" block loading={saving}>
-          {expense ? 'Save changes' : 'Add expense'}
+          {expense ? t('common.saveChanges') : t('expenses.addExpense')}
         </Button>
       </form>
     </BottomSheet>
