@@ -18,8 +18,22 @@ import { storage } from './services/storage/index.js';
 const prodCsp = {
   directives: {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'", 'https://accounts.google.com/gsi/client'],
-    connectSrc: ["'self'", 'https://accounts.google.com/gsi/', 'https://res.cloudinary.com'],
+    scriptSrc: [
+      "'self'",
+      'https://accounts.google.com/gsi/client',
+      // Hash of the inline locale/RTL bootstrap in index.html (sets <html dir>
+      // before React mounts, avoiding an LTR flash for Hebrew). Update this if
+      // that inline script's content changes, or the browser will block it.
+      "'sha256-xVkVtIZ7ow5SrVHI/zBtGGkE66IINiwIm/8IB0fiNOg='",
+    ],
+    connectSrc: [
+      "'self'",
+      'https://accounts.google.com/gsi/',
+      'https://res.cloudinary.com',
+      // Open-Meteo geocoding (TripMap place lookup) + forecast, called client-side.
+      'https://geocoding-api.open-meteo.com',
+      'https://api.open-meteo.com',
+    ],
     frameSrc: ["'self'", 'https://accounts.google.com/gsi/'],
     styleSrc: ["'self'", "'unsafe-inline'", 'https://accounts.google.com/gsi/style'],
     imgSrc: ["'self'", 'data:', 'https:'],
