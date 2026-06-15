@@ -1,0 +1,1061 @@
+@use 'tokens' as *;
+@use 'mixins' as *;
+@use 'reset';
+@use 'themes';
+
+/* ───────────── Base ───────────── */
+body {
+  font-family: $font-sans;
+  background: var(--bg);
+  color: var(--text);
+}
+
+#root {
+  isolation: isolate;
+}
+
+.container {
+  width: 100%;
+  max-width: $content-max;
+  margin-inline: auto;
+  padding-inline: $space-4;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+.center {
+  text-align: center;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+}
+.grow {
+  flex: 1;
+}
+.spread {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  padding: 2px $space-3;
+  border-radius: $radius-full;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+.pill--brand {
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+}
+
+/* ───────────── Buttons ───────────── */
+.btn {
+  @include tap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  padding: $space-3 $space-5;
+  border-radius: $radius-full;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid transparent;
+  transition:
+    transform 0.06s ease,
+    background 0.15s ease,
+    opacity 0.15s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
+.btn--primary {
+  background: var(--brand);
+  color: var(--brand-contrast);
+}
+.btn--ghost {
+  background: transparent;
+  border-color: var(--border);
+}
+.btn--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.btn--block {
+  width: 100%;
+}
+.btn--sm {
+  padding: $space-2 $space-3;
+  font-size: 0.85rem;
+}
+.btn--icon {
+  padding: $space-2;
+  border-radius: $radius-full;
+  background: transparent;
+  color: var(--text-muted);
+  &:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+}
+
+/* ───────────── App shell ───────────── */
+.shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.shell__header {
+  position: sticky;
+  top: 0;
+  z-index: $z-header;
+  height: calc(#{$header-h} + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding-inline: $space-4;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.shell__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  @include truncate;
+}
+.shell__main {
+  flex: 1;
+  width: 100%;
+  padding-block: $space-5;
+  padding-bottom: calc(#{$bottom-nav-h} + #{$space-8} + env(safe-area-inset-bottom));
+}
+.shell__nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-nav;
+  display: flex;
+  justify-content: space-around;
+  padding: $space-2 $space-2;
+  padding-bottom: calc(#{$space-2} + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+}
+.navlink {
+  @include tap;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: $space-1;
+  border-radius: $radius-md;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+
+  &.is-active {
+    color: var(--brand);
+  }
+}
+.navlink__fab {
+  margin-top: -22px;
+  width: 52px;
+  height: 52px;
+  border-radius: $radius-full;
+  background: var(--brand);
+  color: var(--brand-contrast);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-lg);
+}
+
+@include up($bp-lg) {
+  .shell__main {
+    max-width: $wide-max;
+    margin-inline: auto;
+    padding-bottom: $space-12;
+  }
+}
+
+/* ───────────── Splash / spinner ───────────── */
+.splash {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  gap: $space-4;
+  color: var(--text-muted);
+}
+.spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--brand);
+  animation: spin 0.7s linear infinite;
+}
+.spinner--lg {
+  width: 44px;
+  height: 44px;
+  border-width: 4px;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ───────────── Cards / page heads ───────────── */
+.card {
+  @include card;
+  padding: $space-4;
+}
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $space-3;
+  margin-bottom: $space-5;
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* ───────────── Trip cards ───────────── */
+.trip-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-4;
+
+  @include up($bp-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @include up($bp-lg) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.trip-card {
+  @include card;
+  @include tap;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+  &:active {
+    transform: scale(0.99);
+  }
+  @include up($bp-md) {
+    &:hover {
+      box-shadow: var(--shadow-lg);
+    }
+  }
+}
+.trip-card__cover {
+  height: 116px;
+  background: linear-gradient(135deg, var(--brand), #7c3aed);
+  display: flex;
+  align-items: flex-end;
+  padding: $space-3;
+  position: relative;
+  color: #fff;
+}
+.trip-card__emoji {
+  position: absolute;
+  top: $space-2;
+  right: $space-3;
+  font-size: 1.4rem;
+  opacity: 0.9;
+}
+.trip-card__body {
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+.trip-card__title {
+  font-size: 1.05rem;
+  @include truncate;
+}
+.trip-card__meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ───────────── Forms ───────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+.field__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: $space-3 $space-4;
+  border-radius: $radius-md;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1rem;
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--brand);
+  }
+  &::placeholder {
+    color: var(--text-muted);
+  }
+}
+.textarea {
+  resize: vertical;
+  min-height: 84px;
+}
+.field__error {
+  font-size: 0.8rem;
+  color: var(--danger);
+}
+.field__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-3;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+}
+.chip {
+  @include tap;
+  padding: $space-2 $space-4;
+  border-radius: $radius-full;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+
+  &.is-selected {
+    background: var(--brand-soft);
+    border-color: var(--brand);
+    color: var(--brand-strong);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
+
+/* ───────────── Wizard ───────────── */
+.wizard__progress {
+  height: 6px;
+  border-radius: $radius-full;
+  background: var(--surface-2);
+  overflow: hidden;
+  margin-bottom: $space-5;
+}
+.wizard__bar {
+  height: 100%;
+  background: var(--brand);
+  border-radius: $radius-full;
+  transition: width 0.25s ease;
+}
+.wizard__actions {
+  display: flex;
+  gap: $space-3;
+  margin-top: $space-6;
+}
+
+/* ───────────── Trip detail / itinerary ───────────── */
+.trip-hero {
+  border-radius: $radius-xl;
+  padding: $space-6 $space-5;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand), #7c3aed);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: $space-5;
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+.trip-hero__meta {
+  margin-top: $space-2;
+  opacity: 0.92;
+  font-size: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-3;
+}
+.trip-hero__cost {
+  margin-top: $space-4;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.day {
+  margin-bottom: $space-5;
+}
+.day__head {
+  display: flex;
+  align-items: baseline;
+  gap: $space-3;
+  margin-bottom: $space-3;
+
+  h2 {
+    font-size: 1.1rem;
+  }
+}
+.day__list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+.activity {
+  @include card;
+  display: flex;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+  align-items: flex-start;
+
+  &.is-dragging {
+    box-shadow: var(--shadow-lg);
+    opacity: 0.9;
+  }
+}
+.activity__handle {
+  @include tap;
+  color: var(--text-muted);
+  cursor: grab;
+  padding-top: 2px;
+  touch-action: none;
+}
+.activity__body {
+  flex: 1;
+  min-width: 0;
+}
+.activity__title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+.activity__time {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.activity__desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  @include truncate(2);
+}
+.activity__cost {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.activity__type {
+  font-size: 1.1rem;
+}
+
+/* ───────────── Bottom sheet / modal ───────────── */
+.sheet__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: $z-sheet;
+  background: var(--overlay);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fade 0.2s ease;
+}
+.sheet__panel {
+  width: 100%;
+  max-width: $content-max;
+  background: var(--surface);
+  border-radius: $radius-xl $radius-xl 0 0;
+  padding: $space-4 $space-5;
+  @include safe-bottom($space-6);
+  box-shadow: var(--shadow-lg);
+  animation: slide-up 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  max-height: 88dvh;
+  overflow-y: auto;
+
+  @include up($bp-md) {
+    border-radius: $radius-xl;
+    margin-bottom: $space-8;
+  }
+}
+.sheet__handle {
+  width: 40px;
+  height: 4px;
+  border-radius: $radius-full;
+  background: var(--border);
+  margin: 0 auto $space-4;
+}
+.sheet__title {
+  font-size: 1.15rem;
+  margin-bottom: $space-4;
+}
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ───────────── Skeleton ───────────── */
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--surface-2) 30%,
+    color-mix(in srgb, var(--surface-2) 60%, var(--border)) 50%,
+    var(--surface-2) 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.3s infinite linear;
+  border-radius: $radius-md;
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ───────────── Empty / error states ───────────── */
+.empty {
+  text-align: center;
+  padding: $space-12 $space-4;
+  color: var(--text-muted);
+
+  &__emoji {
+    font-size: 2.6rem;
+    margin-bottom: $space-3;
+  }
+  h2 {
+    color: var(--text);
+    margin-bottom: $space-2;
+  }
+}
+
+/* ───────────── Login ───────────── */
+.login {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: $space-6;
+  padding: $space-6;
+  text-align: center;
+  background: radial-gradient(120% 80% at 50% 0%, var(--brand-soft), transparent 60%), var(--bg);
+}
+.login__logo {
+  font-size: 3rem;
+}
+.login__title {
+  font-size: 2rem;
+}
+.login__tagline {
+  color: var(--text-muted);
+  max-width: 32ch;
+}
+
+/* ───────────── Settings ───────────── */
+.list {
+  @include card;
+  overflow: hidden;
+}
+.list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  padding: $space-4;
+  border-bottom: 1px solid var(--border);
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+/* ───────────── Toast ───────────── */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(#{$bottom-nav-h} + #{$space-4} + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: $z-toast;
+  background: var(--text);
+  color: var(--bg);
+  padding: $space-3 $space-5;
+  border-radius: $radius-full;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  animation: fade 0.2s ease;
+}
+
+.segmented {
+  display: inline-flex;
+  background: var(--surface-2);
+  border-radius: $radius-full;
+  padding: 3px;
+  gap: 3px;
+}
+.segmented button {
+  @include tap;
+  padding: $space-2 $space-4;
+  border-radius: $radius-full;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  &.is-active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* ───────────── Tabs (trip sections) ───────────── */
+.tabs {
+  display: flex;
+  gap: $space-2;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: $space-5;
+  padding-bottom: $space-1;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+.tab {
+  @include tap;
+  flex: 0 0 auto;
+  padding: $space-2 $space-4;
+  border-radius: $radius-full;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.is-active {
+    background: var(--brand-soft);
+    border-color: var(--brand);
+    color: var(--brand-strong);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
+
+/* ───────────── Weather ───────────── */
+.weather__strip {
+  display: flex;
+  gap: $space-3;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: $space-2;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+.weather__day {
+  @include card;
+  flex: 0 0 auto;
+  width: 92px;
+  padding: $space-3;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.weather__date {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.weather__emoji {
+  font-size: 1.8rem;
+}
+.weather__temp {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.weather__rain {
+  font-size: 0.75rem;
+  color: var(--brand-strong);
+}
+.weather__label {
+  font-size: 0.7rem;
+  @include truncate;
+}
+
+/* ───────────── Expenses ───────────── */
+.expense-summary__total {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+.expense-summary__remaining {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--success);
+  &.is-over {
+    color: var(--danger);
+  }
+}
+.budget-bar {
+  height: 8px;
+  border-radius: $radius-full;
+  background: var(--surface-2);
+  overflow: hidden;
+  margin-top: $space-3;
+}
+.budget-bar__fill {
+  height: 100%;
+  background: var(--brand);
+  border-radius: $radius-full;
+  transition: width 0.3s ease;
+  &.is-over {
+    background: var(--danger);
+  }
+}
+.expense-row {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+}
+.expense-row__emoji {
+  font-size: 1.3rem;
+}
+.expense-row__body {
+  @include tap;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  background: none;
+  border: none;
+  color: inherit;
+}
+.expense-row__label {
+  font-weight: 600;
+  @include truncate;
+}
+.expense-row__amount {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ───────────── Packing ───────────── */
+.packing__group {
+  font-size: 0.95rem;
+  margin-bottom: $space-2;
+}
+.packing-item {
+  @include card;
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-2 $space-3;
+  cursor: pointer;
+
+  input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--brand);
+    flex: 0 0 auto;
+  }
+  &.is-packed .packing-item__label {
+    text-decoration: line-through;
+    color: var(--text-muted);
+  }
+}
+.packing-item__label {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ───────────── Map ───────────── */
+.trip-map {
+  height: clamp(280px, 52dvh, 460px);
+  width: 100%;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.map-pin {
+  font-size: 1.4rem;
+  cursor: pointer;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* ───────────── Timeline ───────────── */
+.timeline__day {
+  margin-bottom: $space-6;
+}
+.timeline__day-head {
+  display: flex;
+  align-items: baseline;
+  gap: $space-3;
+  margin-bottom: $space-3;
+}
+.timeline__daynum {
+  font-weight: 700;
+}
+.timeline__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 2px solid var(--border);
+  margin-left: $space-2;
+}
+.timeline__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: $space-3;
+  padding: 0 0 $space-4 $space-4;
+}
+.timeline__time {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding-top: 1px;
+}
+.timeline__dot {
+  position: absolute;
+  left: -7px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--brand);
+  border: 2px solid var(--surface);
+}
+.timeline__title {
+  font-weight: 600;
+}
+
+/* ───────────── Stats / globe (Phase 3) ───────────── */
+.globe-canvas {
+  height: clamp(300px, 56dvh, 520px);
+  width: 100%;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 100% at 50% 0%, var(--brand-soft), transparent 65%), var(--surface);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $space-3;
+
+  @include up($bp-md) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.stat-card {
+  @include card;
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+.stat-card__emoji {
+  font-size: 1.6rem;
+}
+.stat-card__value {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+.stat-card__label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ───────────── Achievements (Phase 5) ───────────── */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $space-3;
+
+  @include up($bp-md) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.badge {
+  @include card;
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-1;
+  text-align: center;
+  opacity: 0.55;
+  filter: grayscale(0.8);
+
+  &.is-earned {
+    opacity: 1;
+    filter: none;
+    border-color: var(--brand);
+    background: var(--brand-soft);
+  }
+}
+.badge__emoji {
+  font-size: 2rem;
+}
+.badge__name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.badge__done {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--brand-strong);
+}
+.badge__progress {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  width: 100%;
+}
+.badge__bar {
+  display: block;
+  height: 5px;
+  border-radius: $radius-full;
+  background: var(--surface-2);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.badge__bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--brand);
+  border-radius: $radius-full;
+}
+
+/* ───────────── Photos (Phase 3) ───────────── */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $space-2;
+
+  @include up($bp-sm) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @include up($bp-lg) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.photo {
+  position: relative;
+  margin: 0;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: var(--surface-2);
+  aspect-ratio: 1;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  figcaption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: $space-2 $space-3;
+    font-size: 0.78rem;
+    color: #fff;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.65));
+    @include truncate;
+  }
+}
+.photo__del {
+  position: absolute;
+  top: $space-1;
+  right: $space-1;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-full;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+/* ───────────── Documents (Phase 3) ───────────── */
+.doc-row__title {
+  @include truncate;
+  display: block;
+}
+
+/* ───────────── Integrations (Phase 4) ───────────── */
+.integration-row {
+  align-items: flex-start;
+}
+.integration-row__req {
+  font-size: 0.78rem;
+  color: var(--warn);
+  margin-top: $space-1;
+  max-width: 46ch;
+}

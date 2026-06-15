@@ -1,0 +1,19 @@
+# Local development dependencies. The app itself runs via `npm run dev`
+# (Vite + node --watch); this compose file only provides MongoDB.
+services:
+  mongo:
+    image: mongo:7
+    container_name: pepetrip-mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - pepetrip-mongo-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pepetrip-mongo-data:

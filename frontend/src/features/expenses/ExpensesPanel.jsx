@@ -1,0 +1,149 @@
+import { useState } from 'react';
+import { EXPENSE_CATEGORY_LABELS } from '@pepetrip/shared';
+import {
+  useExpenses,
+  useCreateExpense,
+  useUpdateExpense,
+  useDeleteExpense,
+} from './expenseQueries.js';
+import { ExpenseEditSheet } from './ExpenseEditSheet.jsx';
+import { Button, Icon, Spinner, EmptyState, useToast } from '../../components/ui';
+import { formatCurrency, formatDate, expenseEmoji } from '../../utils/format.js';
+
+export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
+  const toast = useToast();
+  const { data, isLoading, isError, error } = useExpenses(tripId);
+  const create = useCreateExpense(tripId);
+  const update = useUpdateExpense(tripId);
+  const remove = useDeleteExpense(tripId);
+  const [sheet, setSheet] = useState(null); // null | { expense? }
+
+  if (isLoading) {
+    return (
+      <div className="splash" style={{ minHeight: '20dvh' }}>
+        <Spinner />
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <EmptyState emoji="⚠️" title="Couldn't load expenses">
+        {error?.message}
+      </EmptyState>
+    );
+  }
+
+  const { expenses, summary } = data;
+  const pct = summary.budget
+    ? Math.min(100, Math.round((summary.total / summary.budget) * 100))
+    : 0;
+  const over = summary.budget && summary.total > summary.budget;
+
+  const handleSave = async (body) => {
+    try {
+      if (sheet.expense) {
+        await update.mutateAsync({ expenseId: sheet.expense.id, body });
+      } else {
+        await create.mutateAsync(body);
+      }
+      setSheet(null);
+    } catch (e) {
+      toast(e.message);
+    }
+  };
+
+  const topCategories = Object.entries(summary.byCategory)
+    .filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1]);
+
+  return (
+    <div className="stack">
+      <div className="card expense-summary">
+        <div className="spread">
+          <div>
+            <div className="expense-summary__total">
+              {formatCurrency(summary.total, summary.currency)}
+            </div>
+            <div className="muted">spent across {summary.count} expenses</div>
+          </div>
+          {summary.budget > 0 && (
+            <div className="center">
+              <div className={`expense-summary__remaining${over ? ' is-over' : ''}`}>
+                {over ? '−' : ''}
+                {formatCurrency(Math.abs(summary.remaining), summary.currency)}
+              </div>
+              <div className="muted">{over ? 'over budget' : 'left'}</div>
+            </div>
+          )}
+        </div>
+        {summary.budget > 0 && (
+          <div className="budget-bar" aria-hidden="true">
+            <div
+              className={`budget-bar__fill${over ? ' is-over' : ''}`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        )}
+        {topCategories.length > 0 && (
+          <div className="chips" style={{ marginTop: '0.75rem' }}>
+            {topCategories.map(([cat, val]) => (
+              <span key={cat} className="pill">
+                {expenseEmoji(cat)} {EXPENSE_CATEGORY_LABELS[cat]} ·{' '}
+                {formatCurrency(val, summary.currency)}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Button variant="primary" onClick={() => setSheet({})}>
+        <Icon name="plus" size={18} /> Add expense
+      </Button>
+
+      {expenses.length === 0 ? (
+        <EmptyState emoji="💸" title="No expenses yet">
+          Log what you spend to compare against your budget.
+        </EmptyState>
+      ) : (
+        <div className="stack" style={{ gap: '0.5rem' }}>
+          {expenses.map((e) => (
+            <div key={e.id} className="expense-row card">
+              <span className="expense-row__emoji" aria-hidden="true">
+                {expenseEmoji(e.category)}
+              </span>
+              <button
+                type="button"
+                className="expense-row__body"
+                onClick={() => setSheet({ expense: e })}
+              >
+                <div className="expense-row__label">{e.label}</div>
+                <div className="muted">
+                  {EXPENSE_CATEGORY_LABELS[e.category]}
+                  {e.date ? ` · ${formatDate(e.date)}` : ''}
+                </div>
+              </button>
+              <span className="expense-row__amount">{formatCurrency(e.amount, e.currency)}</span>
+              <button
+                type="button"
+                className="btn--icon"
+                onClick={() => remove.mutate(e.id, { onError: (err) => toast(err.message) })}
+                aria-label={`Delete ${e.label}`}
+              >
+                <Icon name="trash" size={16} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <ExpenseEditSheet
+        open={Boolean(sheet)}
+        onClose={() => setSheet(null)}
+        expense={sheet?.expense}
+        currency={tripCurrency}
+        saving={create.isPending || update.isPending}
+        onSave={handleSave}
+      />
+    </div>
+  );
+}

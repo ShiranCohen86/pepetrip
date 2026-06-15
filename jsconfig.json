@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "checkJs": false,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@pepetrip/shared": ["shared/src/index.js"],
+      "@pepetrip/shared/*": ["shared/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build", "coverage"]
+}

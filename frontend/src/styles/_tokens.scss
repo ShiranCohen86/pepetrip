@@ -1,0 +1,49 @@
+// Static design tokens (SCSS). Theme-able colors live in _themes.scss as CSS vars.
+
+// Spacing scale
+$space-1: 0.25rem;
+$space-2: 0.5rem;
+$space-3: 0.75rem;
+$space-4: 1rem;
+$space-5: 1.25rem;
+$space-6: 1.5rem;
+$space-8: 2rem;
+$space-10: 2.5rem;
+$space-12: 3rem;
+$space-16: 4rem;
+
+// Radius
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 18px;
+$radius-xl: 26px;
+$radius-full: 999px;
+
+// Breakpoints (mobile-first)
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+
+// Layout
+$header-h: 56px;
+$bottom-nav-h: 64px;
+$content-max: 720px;
+$wide-max: 1120px;
+
+// Type
+$font-sans:
+  'Inter',
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  Roboto,
+  Helvetica,
+  Arial,
+  sans-serif;
+
+// z-index
+$z-header: 50;
+$z-nav: 60;
+$z-sheet: 100;
+$z-toast: 120;
