@@ -2,6 +2,7 @@ import { tripRepository } from '../repositories/tripRepository.js';
 import { User } from '../models/User.js';
 import { getPagination, buildPageMeta } from '../helpers/pagination.js';
 import { notFound, badRequest } from '../errors/AppError.js';
+import { randomToken } from '../utils/crypto.js';
 import * as aiItineraryService from './aiItineraryService.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -68,6 +69,48 @@ export async function getAccessibleTrip(id, userId) {
   const trip = await tripRepository.findAccessible(id, userId);
   if (!trip) throw notFound('Trip not found');
   return trip;
+}
+
+/* ───────────── Public read-only sharing (owner-managed) ───────────── */
+
+/** Create (or return existing) a public share token for an owned trip. */
+export async function createShareLink(tripId, ownerId) {
+  const trip = await getOwnedTrip(tripId, ownerId);
+  if (!trip.shareToken) {
+    trip.shareToken = randomToken(16); // 32 hex chars
+    trip.sharedAt = new Date();
+    await trip.save();
+  }
+  return trip.shareToken;
+}
+
+/** Revoke sharing: the existing link stops working. */
+export async function revokeShareLink(tripId, ownerId) {
+  const trip = await getOwnedTrip(tripId, ownerId);
+  trip.shareToken = undefined;
+  trip.sharedAt = undefined;
+  await trip.save();
+  return true;
+}
+
+/**
+ * Public, read-only view of a shared trip. Strips everything private — owner id,
+ * members (emails), the share token itself, and the owner's free-text notes.
+ */
+export async function getSharedTrip(token) {
+  if (!token || typeof token !== 'string' || token.length > 128) {
+    throw notFound('Shared trip not found');
+  }
+  const trip = await tripRepository.findByShareToken(token);
+  if (!trip) throw notFound('Shared trip not found');
+
+  const json = trip.toJSON();
+  delete json.ownerId;
+  delete json.members;
+  delete json.shareToken;
+  delete json.sharedAt;
+  delete json.notes;
+  return json;
 }
 
 /* ───────────── Group travel: members (owner-managed) ───────────── */

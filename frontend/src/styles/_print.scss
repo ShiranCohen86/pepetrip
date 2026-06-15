@@ -1,0 +1,63 @@
+@use 'tokens' as *;
+
+// Print-only itinerary. On screen it's hidden; when printing we hide the app
+// chrome and lay out a clean black-on-white document (also used for Save as PDF).
+.trip-print {
+  display: none;
+}
+
+@media print {
+  .app,
+  .bottom-nav,
+  .sidebar,
+  .topbar,
+  .skip-link,
+  .toast {
+    display: none !important;
+  }
+
+  .trip-print {
+    display: block !important;
+    background: #fff;
+    color: #000;
+    font-family: $font-sans;
+    padding: 24px;
+
+    h1 {
+      font-size: 22pt;
+      margin-bottom: 4pt;
+    }
+    h2 {
+      font-size: 13pt;
+      margin-bottom: 6pt;
+      padding-bottom: 3pt;
+      border-bottom: 1px solid #ccc;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      margin-bottom: 7pt;
+    }
+  }
+  .trip-print__meta {
+    color: #444;
+    margin-bottom: 16pt;
+  }
+  .trip-print__day {
+    margin-bottom: 14pt;
+    break-inside: avoid;
+  }
+  .trip-print__sub {
+    color: #555;
+    font-size: 10pt;
+    margin-top: 1pt;
+  }
+  .trip-print__foot {
+    margin-top: 18pt;
+    color: #999;
+    font-size: 9pt;
+  }
+}

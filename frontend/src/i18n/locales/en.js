@@ -57,6 +57,20 @@ export default {
     connected: 'Connected',
     comingSoon: 'Coming soon',
   },
+  share: {
+    button: 'Share',
+    title: 'Share this trip',
+    description: 'Anyone with this link can view this trip (read-only).',
+    copy: 'Copy link',
+    copied: 'Link copied',
+    revoke: 'Stop sharing',
+    creating: 'Creating link…',
+  },
+  shared: {
+    notFound: 'This shared trip is no longer available',
+    readonly: 'Read-only shared trip',
+    planYours: 'Plan your own trip',
+  },
   // Localized labels for shared domain enums (@pepetrip/shared).
   styles: {
     luxury: 'Luxury',
@@ -112,6 +126,15 @@ export default {
     emptyTitle: 'No trips yet',
     emptyBody: 'Tell the AI where you’re headed and get a full day-by-day plan in seconds.',
     planFirst: 'Plan your first trip',
+    searchPlaceholder: 'Search trips…',
+    sortAria: 'Sort trips',
+    sortNewest: 'Newest first',
+    sortOldest: 'Oldest first',
+    sortName: 'Name (A–Z)',
+    statusFilterAria: 'Filter by status',
+    filterAll: 'All',
+    noResults: 'No matching trips',
+    noResultsBody: 'Try a different search or filter.',
   },
   createTrip: {
     title: 'Plan a trip',
@@ -140,6 +163,8 @@ export default {
     loading: 'Loading trip…',
     loadError: 'Couldn’t load this trip',
     backToTrips: 'Back to trips',
+    print: 'Print / PDF',
+    addToCalendar: 'Add to calendar',
     estCost: 'Est. {{cost}}',
     ofBudget: ' of {{budget}} budget',
     deleteConfirm: 'Delete this trip? This cannot be undone.',
@@ -184,6 +209,7 @@ export default {
   expenses: {
     loadError: 'Couldn’t load expenses',
     spentAcross: 'spent across {{count}} expenses',
+    convertedNote: 'Totals converted to {{currency}}',
     overBudget: 'over budget',
     left: 'left',
     addExpense: 'Add expense',

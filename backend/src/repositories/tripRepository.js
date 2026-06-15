@@ -10,6 +10,8 @@ export const tripRepository = {
 
   findAccessible: (id, userId) => Trip.findOne({ _id: id, ...accessFilter(userId) }),
 
+  findByShareToken: (token) => Trip.findOne({ shareToken: token }),
+
   deleteByIdForOwner: (id, ownerId) => Trip.findOneAndDelete({ _id: id, ownerId }),
 
   countByOwner: (ownerId, filter = {}) => Trip.countDocuments({ ownerId, ...filter }),

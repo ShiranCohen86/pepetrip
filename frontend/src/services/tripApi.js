@@ -16,4 +16,7 @@ export const tripApi = {
     unwrap(http.delete(`/trips/${id}/days/${dayId}/activities/${activityId}`)),
   addMember: (id, body) => unwrap(http.post(`/trips/${id}/members`, body)),
   removeMember: (id, memberId) => unwrap(http.delete(`/trips/${id}/members/${memberId}`)),
+  share: (id) => unwrap(http.post(`/trips/${id}/share`)),
+  unshare: (id) => unwrap(http.delete(`/trips/${id}/share`)),
+  getShared: (token) => unwrap(http.get(`/shared/${token}`)),
 };

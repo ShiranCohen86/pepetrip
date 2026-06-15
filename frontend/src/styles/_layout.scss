@@ -306,6 +306,22 @@
   --col-min: 320px;
 }
 
+// ───────────── Public shared-trip page ─────────────
+.shared__bar {
+  position: sticky;
+  top: 0;
+  z-index: $z-header;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  padding: $space-3 var(--gutter);
+  padding-top: calc(#{$space-3} + env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
 // ───────────── Skip link (a11y) ─────────────
 .skip-link {
   position: fixed;
