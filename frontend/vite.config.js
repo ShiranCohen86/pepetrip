@@ -17,7 +17,11 @@ export default defineConfig({
         theme_color: '#0ea5e9',
         background_color: '#0b1020',
         display: 'standalone',
-        orientation: 'portrait',
+        // Prefer the desktop window-controls-overlay when available; fall back to
+        // standalone. 'any' orientation so tablet/desktop/foldable installs aren't
+        // locked to portrait.
+        display_override: ['window-controls-overlay', 'standalone'],
+        orientation: 'any',
         start_url: '/',
         scope: '/',
         icons: [

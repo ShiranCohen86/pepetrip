@@ -9,8 +9,10 @@ import {
 import { ExpenseEditSheet } from './ExpenseEditSheet.jsx';
 import { Button, Icon, Spinner, EmptyState, useToast } from '../../components/ui';
 import { formatCurrency, formatDate, expenseEmoji } from '../../utils/format.js';
+import { useTranslation } from '../../i18n';
 
 export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
+  const { t } = useTranslation();
   const toast = useToast();
   const { data, isLoading, isError, error } = useExpenses(tripId);
   const create = useCreateExpense(tripId);
@@ -27,7 +29,7 @@ export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
   }
   if (isError) {
     return (
-      <EmptyState emoji="⚠️" title="Couldn't load expenses">
+      <EmptyState emoji="⚠️" title={t('expenses.loadError')}>
         {error?.message}
       </EmptyState>
     );
@@ -64,7 +66,7 @@ export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
             <div className="expense-summary__total">
               {formatCurrency(summary.total, summary.currency)}
             </div>
-            <div className="muted">spent across {summary.count} expenses</div>
+            <div className="muted">{t('expenses.spentAcross', { count: summary.count })}</div>
           </div>
           {summary.budget > 0 && (
             <div className="center">
@@ -72,7 +74,7 @@ export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
                 {over ? '−' : ''}
                 {formatCurrency(Math.abs(summary.remaining), summary.currency)}
               </div>
-              <div className="muted">{over ? 'over budget' : 'left'}</div>
+              <div className="muted">{over ? t('expenses.overBudget') : t('expenses.left')}</div>
             </div>
           )}
         </div>
@@ -97,12 +99,12 @@ export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
       </div>
 
       <Button variant="primary" onClick={() => setSheet({})}>
-        <Icon name="plus" size={18} /> Add expense
+        <Icon name="plus" size={18} /> {t('expenses.addExpense')}
       </Button>
 
       {expenses.length === 0 ? (
-        <EmptyState emoji="💸" title="No expenses yet">
-          Log what you spend to compare against your budget.
+        <EmptyState emoji="💸" title={t('expenses.noExpenses')}>
+          {t('expenses.noExpensesBody')}
         </EmptyState>
       ) : (
         <div className="stack" style={{ gap: '0.5rem' }}>
@@ -127,7 +129,7 @@ export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
                 type="button"
                 className="btn--icon"
                 onClick={() => remove.mutate(e.id, { onError: (err) => toast(err.message) })}
-                aria-label={`Delete ${e.label}`}
+                aria-label={t('expenses.deleteAria', { label: e.label })}
               >
                 <Icon name="trash" size={16} />
               </button>

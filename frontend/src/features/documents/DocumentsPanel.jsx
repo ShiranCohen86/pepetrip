@@ -8,8 +8,10 @@ import {
 } from './documentQueries.js';
 import { Button, Icon, Spinner, EmptyState, useToast } from '../../components/ui';
 import { mediaUrl } from '../../utils/media.js';
+import { useTranslation } from '../../i18n';
 
 export function DocumentsPanel({ tripId }) {
+  const { t } = useTranslation();
   const toast = useToast();
   const { data: docs, isLoading } = useDocuments(tripId);
   const upload = useUploadDocument(tripId);
@@ -34,9 +36,9 @@ export function DocumentsPanel({ tripId }) {
       const Tesseract = (await import('tesseract.js')).default;
       const { data } = await Tesseract.recognize(mediaUrl(doc.url), 'eng');
       await extract.mutateAsync({ docId: doc.id, text: data.text });
-      toast('Details extracted');
+      toast(t('documents.extracted'));
     } catch {
-      toast('Could not read this document');
+      toast(t('documents.extractFailed'));
     } finally {
       setBusyId(null);
     }
@@ -59,12 +61,12 @@ export function DocumentsPanel({ tripId }) {
         onClick={() => inputRef.current?.click()}
         loading={upload.isPending}
       >
-        <Icon name="file" size={18} /> Add document
+        <Icon name="file" size={18} /> {t('documents.upload')}
       </Button>
 
       {list.length === 0 ? (
-        <EmptyState emoji="📄" title="No documents yet">
-          Store boarding passes, reservations and tickets. Scan an image to auto-extract details.
+        <EmptyState emoji="📄" title={t('documents.empty')}>
+          {t('documents.emptyBody')}
         </EmptyState>
       ) : (
         <div className="stack" style={{ gap: '0.5rem' }}>
@@ -88,7 +90,7 @@ export function DocumentsPanel({ tripId }) {
                     <span style={{ minWidth: 0 }}>
                       <strong className="doc-row__title">{doc.title || doc.filename}</strong>
                       <div className="muted" style={{ fontSize: '0.8rem' }}>
-                        {DOCUMENT_TYPE_LABELS[doc.type] || 'Document'}
+                        {DOCUMENT_TYPE_LABELS[doc.type] || t('documents.typeFallback')}
                       </div>
                     </span>
                   </a>
@@ -96,7 +98,7 @@ export function DocumentsPanel({ tripId }) {
                     type="button"
                     className="btn--icon"
                     onClick={() => del.mutate(doc.id, { onError: (err) => toast(err.message) })}
-                    aria-label="Delete document"
+                    aria-label={t('documents.deleteAria')}
                   >
                     <Icon name="trash" size={16} />
                   </button>
@@ -125,7 +127,7 @@ export function DocumentsPanel({ tripId }) {
                     loading={busyId === doc.id}
                   >
                     <Icon name="sparkles" size={16} />{' '}
-                    {hasFields ? 'Re-scan' : 'Scan details (OCR)'}
+                    {hasFields ? t('documents.rescan') : t('documents.scanDetails')}
                   </Button>
                 )}
               </div>

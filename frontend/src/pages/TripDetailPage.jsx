@@ -19,6 +19,8 @@ import { ExpensesPanel } from '../features/expenses/ExpensesPanel.jsx';
 import { PackingPanel } from '../features/packing/PackingPanel.jsx';
 import { WeatherStrip } from '../features/weather/WeatherStrip.jsx';
 import { Button, Icon, Spinner, EmptyState, useToast } from '../components/ui';
+import { useDevice } from '../hooks/responsive';
+import { useTranslation } from '../i18n';
 import { formatDateRange, sumTripCost, formatCurrency, tripEmoji } from '../utils/format.js';
 
 // Lazy-load the map: MapLibre is heavy, so it loads only when the Map tab opens.
@@ -26,22 +28,27 @@ const TripMap = lazy(() =>
   import('../features/trips/TripMap.jsx').then((m) => ({ default: m.TripMap })),
 );
 
+// key + emoji; labels come from the dictionary (tripDetail.tabs.*).
 const TABS = [
-  { key: 'plan', label: '🗂️ Plan' },
-  { key: 'map', label: '🗺️ Map' },
-  { key: 'timeline', label: '🕰️ Timeline' },
-  { key: 'spending', label: '💸 Spending' },
-  { key: 'packing', label: '🧳 Packing' },
-  { key: 'weather', label: '🌤️ Weather' },
-  { key: 'photos', label: '📸 Photos' },
-  { key: 'documents', label: '📄 Docs' },
-  { key: 'people', label: '🧑‍🤝‍🧑 People' },
+  { key: 'plan', emoji: '🗂️' },
+  { key: 'map', emoji: '🗺️' },
+  { key: 'timeline', emoji: '🕰️' },
+  { key: 'spending', emoji: '💸' },
+  { key: 'packing', emoji: '🧳' },
+  { key: 'weather', emoji: '🌤️' },
+  { key: 'photos', emoji: '📸' },
+  { key: 'documents', emoji: '📄' },
+  { key: 'people', emoji: '🧑‍🤝‍🧑' },
 ];
 
 export default function TripDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useTranslation();
+  const { isDesktop, isLargeDesktop } = useDevice();
+  const twoPane = isDesktop || isLargeDesktop; // ≥1024px → split itinerary + panel
+
   const { data, isLoading, isError, error } = useTrip(id);
   const trip = data?.trip;
 
@@ -53,19 +60,20 @@ export default function TripDetailPage() {
   const deleteTrip = useDeleteTrip();
 
   const [sheet, setSheet] = useState(null); // null | { dayId, activity? }
-  const [tab, setTab] = useState('plan');
+  const [tab, setTab] = useState('plan'); // single-pane (mobile/tablet)
+  const [asideTab, setAsideTab] = useState('map'); // right pane (desktop)
 
   if (isLoading) {
     return (
       <div className="splash" style={{ minHeight: '50dvh' }}>
         <Spinner size="lg" />
-        <p>Loading trip…</p>
+        <p>{t('tripDetail.loading')}</p>
       </div>
     );
   }
   if (isError || !trip) {
     return (
-      <EmptyState emoji="⚠️" title="Couldn’t load this trip">
+      <EmptyState emoji="⚠️" title={t('tripDetail.loadError')}>
         {error?.message}
       </EmptyState>
     );
@@ -78,11 +86,7 @@ export default function TripDetailPage() {
   const handleSaveActivity = async (body) => {
     try {
       if (sheet.activity) {
-        await updateActivity.mutateAsync({
-          dayId: sheet.dayId,
-          activityId: sheet.activity.id,
-          body,
-        });
+        await updateActivity.mutateAsync({ dayId: sheet.dayId, activityId: sheet.activity.id, body });
       } else {
         await addActivity.mutateAsync({ dayId: sheet.dayId, body });
       }
@@ -94,12 +98,12 @@ export default function TripDetailPage() {
 
   const handleRegenerate = () =>
     generate.mutate(undefined, {
-      onSuccess: () => toast('Itinerary updated'),
+      onSuccess: () => toast(t('tripDetail.itineraryUpdated')),
       onError: (e) => toast(e.message),
     });
 
   const handleDeleteTrip = () => {
-    if (!window.confirm('Delete this trip? This cannot be undone.')) return;
+    if (!window.confirm(t('tripDetail.deleteConfirm'))) return;
     deleteTrip.mutate(id, {
       onSuccess: () => navigate('/'),
       onError: (e) => toast(e.message),
@@ -110,17 +114,18 @@ export default function TripDetailPage() {
     <>
       <div className="row" style={{ marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <Button variant="primary" onClick={handleRegenerate} loading={generate.isPending}>
-          <Icon name="sparkles" size={18} /> {hasItinerary ? 'Regenerate' : 'Generate with AI'}
+          <Icon name="sparkles" size={18} />{' '}
+          {hasItinerary ? t('common.regenerate') : t('createTrip.generate')}
         </Button>
         <Button variant="danger" onClick={handleDeleteTrip} loading={deleteTrip.isPending}>
-          <Icon name="trash" size={16} /> Delete
+          <Icon name="trash" size={16} /> {t('common.delete')}
         </Button>
       </div>
 
       {generate.isPending && !hasItinerary && (
         <div className="splash" style={{ minHeight: '28dvh' }}>
           <Spinner />
-          <p>Planning your days…</p>
+          <p>{t('tripDetail.planningDays')}</p>
         </div>
       )}
 
@@ -136,19 +141,68 @@ export default function TripDetailPage() {
         !generate.isPending && (
           <EmptyState
             emoji="✨"
-            title="No itinerary yet"
+            title={t('tripDetail.noItinerary')}
             action={
               <Button variant="primary" onClick={handleRegenerate} loading={generate.isPending}>
-                <Icon name="sparkles" size={18} /> Generate with AI
+                <Icon name="sparkles" size={18} /> {t('createTrip.generate')}
               </Button>
             }
           >
-            Let the AI draft a day-by-day plan you can edit.
+            {t('tripDetail.noItineraryBody')}
           </EmptyState>
         )
       )}
     </>
   );
+
+  const renderSection = (key) => {
+    switch (key) {
+      case 'plan':
+        return renderPlan();
+      case 'map':
+        return (
+          <Suspense
+            fallback={
+              <div className="splash" style={{ minHeight: '20dvh' }}>
+                <Spinner />
+              </div>
+            }
+          >
+            <TripMap trip={trip} />
+          </Suspense>
+        );
+      case 'timeline':
+        return <TripTimeline trip={trip} />;
+      case 'spending':
+        return <ExpensesPanel tripId={id} tripCurrency={currency} />;
+      case 'packing':
+        return <PackingPanel tripId={id} />;
+      case 'weather':
+        return <WeatherStrip tripId={id} />;
+      case 'photos':
+        return <PhotosPanel tripId={id} />;
+      case 'documents':
+        return <DocumentsPanel tripId={id} />;
+      case 'people':
+        return <TripPeople trip={trip} />;
+      default:
+        return null;
+    }
+  };
+
+  const TabButton = ({ tabDef, selected, onSelect }) => (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={selected}
+      className={`tab${selected ? ' is-active' : ''}`}
+      onClick={onSelect}
+    >
+      {tabDef.emoji} {t(`tripDetail.tabs.${tabDef.key}`)}
+    </button>
+  );
+
+  const secondaryTabs = TABS.filter((tb) => tb.key !== 'plan');
 
   return (
     <div>
@@ -156,7 +210,7 @@ export default function TripDetailPage() {
         type="button"
         className="btn btn--icon"
         onClick={() => navigate('/')}
-        aria-label="Back to trips"
+        aria-label={t('tripDetail.backToTrips')}
         style={{ marginBottom: '0.5rem' }}
       >
         <Icon name="back" />
@@ -176,48 +230,48 @@ export default function TripDetailPage() {
         </div>
         {cost > 0 && (
           <div className="trip-hero__cost">
-            Est. {formatCurrency(cost, currency)}
+            {t('tripDetail.estCost', { cost: formatCurrency(cost, currency) })}
             {trip.budget?.amount
-              ? ` of ${formatCurrency(trip.budget.amount, currency)} budget`
+              ? t('tripDetail.ofBudget', { budget: formatCurrency(trip.budget.amount, currency) })
               : ''}
           </div>
         )}
       </div>
 
-      <div className="tabs" role="tablist" aria-label="Trip sections">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.key}
-            className={`tab${tab === t.key ? ' is-active' : ''}`}
-            onClick={() => setTab(t.key)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {tab === 'plan' && renderPlan()}
-      {tab === 'map' && (
-        <Suspense
-          fallback={
-            <div className="splash" style={{ minHeight: '20dvh' }}>
-              <Spinner />
+      {twoPane ? (
+        <div className="split">
+          <section className="split__main" aria-label={t('tripDetail.tabs.plan')}>
+            {renderPlan()}
+          </section>
+          <aside className="split__aside">
+            <div className="tabs" role="tablist" aria-label={t('tripDetail.sections')}>
+              {secondaryTabs.map((tb) => (
+                <TabButton
+                  key={tb.key}
+                  tabDef={tb}
+                  selected={asideTab === tb.key}
+                  onSelect={() => setAsideTab(tb.key)}
+                />
+              ))}
             </div>
-          }
-        >
-          <TripMap trip={trip} />
-        </Suspense>
+            {renderSection(asideTab)}
+          </aside>
+        </div>
+      ) : (
+        <>
+          <div className="tabs" role="tablist" aria-label={t('tripDetail.sections')}>
+            {TABS.map((tb) => (
+              <TabButton
+                key={tb.key}
+                tabDef={tb}
+                selected={tab === tb.key}
+                onSelect={() => setTab(tb.key)}
+              />
+            ))}
+          </div>
+          {renderSection(tab)}
+        </>
       )}
-      {tab === 'timeline' && <TripTimeline trip={trip} />}
-      {tab === 'spending' && <ExpensesPanel tripId={id} tripCurrency={currency} />}
-      {tab === 'packing' && <PackingPanel tripId={id} />}
-      {tab === 'weather' && <WeatherStrip tripId={id} />}
-      {tab === 'photos' && <PhotosPanel tripId={id} />}
-      {tab === 'documents' && <DocumentsPanel tripId={id} />}
-      {tab === 'people' && <TripPeople trip={trip} />}
 
       <ActivityEditSheet
         open={Boolean(sheet)}

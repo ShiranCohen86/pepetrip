@@ -1,22 +1,24 @@
 import { useWeather } from './weatherQueries.js';
 import { Spinner, EmptyState } from '../../components/ui';
 import { formatDate } from '../../utils/format.js';
+import { useTranslation } from '../../i18n';
 
 export function WeatherStrip({ tripId }) {
+  const { t } = useTranslation();
   const { data, isLoading, isError, error } = useWeather(tripId);
 
   if (isLoading) {
     return (
       <div className="splash" style={{ minHeight: '20dvh' }}>
         <Spinner />
-        <p>Checking the forecast…</p>
+        <p>{t('weather.checking')}</p>
       </div>
     );
   }
   if (isError) {
     return (
-      <EmptyState emoji="🌧️" title="Weather unavailable">
-        {error?.message || 'Could not load the forecast right now.'}
+      <EmptyState emoji="🌧️" title={t('weather.unavailable')}>
+        {error?.message || t('weather.couldNotLoad')}
       </EmptyState>
     );
   }
@@ -24,8 +26,8 @@ export function WeatherStrip({ tripId }) {
   const weather = data?.weather;
   if (!weather?.available) {
     return (
-      <EmptyState emoji="🗓️" title="No forecast yet">
-        {weather?.reason || 'Forecasts appear within ~16 days of your trip.'}
+      <EmptyState emoji="🗓️" title={t('weather.noForecast')}>
+        {weather?.reason || t('weather.forecastWindow')}
       </EmptyState>
     );
   }

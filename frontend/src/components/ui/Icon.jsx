@@ -2,6 +2,13 @@
 const ICONS = {
   plus: <path d="M5 12h14M12 5v14" />,
   x: <path d="M18 6 6 18M6 6l12 12" />,
+  menu: <path d="M3 6h18M3 12h18M3 18h18" />,
+  languages: (
+    <>
+      <path d="M5 8h14M9 4v4M12.5 20l4.5-11 4.5 11M14 17h6" />
+      <path d="M5 8c0 4 3 7 7 8" />
+    </>
+  ),
   check: <path d="M20 6 9 17l-5-5" />,
   back: <path d="M15 18l-6-6 6-6" />,
   forward: <path d="M9 18l6-6-6-6" />,
@@ -109,6 +116,7 @@ export function Icon({ name, size = 22, className, ...rest }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      data-icon={name}
       aria-hidden="true"
       {...rest}
     >

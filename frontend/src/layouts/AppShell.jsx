@@ -1,43 +1,48 @@
-import { NavLink, Outlet } from 'react-router-dom';
-import { Icon } from '../components/ui';
+import { useState } from 'react';
+import { Outlet } from 'react-router-dom';
+import { useDevice } from '../hooks/responsive';
+import { useTranslation } from '../i18n';
+import { Sidebar } from './Sidebar.jsx';
+import { BottomNav } from './BottomNav.jsx';
+import { NavDrawer } from './NavDrawer.jsx';
+import { MobileHeader } from './MobileHeader.jsx';
 
-const navClass = ({ isActive }) => `navlink${isActive ? ' is-active' : ''}`;
-
+/**
+ * Adaptive application shell. Mounts exactly one navigation pattern for the
+ * current device (no hidden duplicate DOM):
+ *   mobile  → sticky brand bar + fixed bottom nav (+ center FAB)
+ *   tablet  → permanent icon rail (+ expandable drawer)
+ *   desktop → permanent full sidebar
+ */
 export default function AppShell() {
+  const { isMobile, isTablet } = useDevice();
+  const { t } = useTranslation();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
-    <div className="shell">
-      <header className="shell__header">
-        <span style={{ fontSize: '1.35rem' }} aria-hidden="true">
-          🧭
-        </span>
-        <span className="shell__title">PepeTrip</span>
-      </header>
+    <div className="app">
+      <a className="skip-link" href="#main-content">
+        {t('nav.skipToContent')}
+      </a>
 
-      <main className="shell__main">
-        <div className="container">
-          <Outlet />
-        </div>
-      </main>
+      {!isMobile && (
+        <Sidebar rail={isTablet} onExpand={isTablet ? () => setDrawerOpen(true) : undefined} />
+      )}
+      {isTablet && <NavDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />}
 
-      <nav className="shell__nav" aria-label="Primary">
-        <NavLink to="/" end className={navClass}>
-          <Icon name="home" size={22} />
-          <span>Trips</span>
-        </NavLink>
-        <NavLink to="/world" className={navClass}>
-          <Icon name="globe" size={22} />
-          <span>World</span>
-        </NavLink>
-        <NavLink to="/trips/new" className="navlink" aria-label="Plan a new trip">
-          <span className="navlink__fab">
-            <Icon name="plus" size={26} />
-          </span>
-        </NavLink>
-        <NavLink to="/settings" className={navClass}>
-          <Icon name="settings" size={22} />
-          <span>Settings</span>
-        </NavLink>
-      </nav>
+      <div className="app__body">
+        {isMobile && <MobileHeader />}
+        <main
+          id="main-content"
+          className={`app__main${isMobile ? ' app__main--with-bottom-nav' : ''}`}
+        >
+          <div className="container container--wide">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+
+      {isMobile && <BottomNav />}
     </div>
   );
 }

@@ -27,20 +27,26 @@ export function GoogleSignInButton() {
   const ref = useRef(null);
   const [error, setError] = useState(null);
   const { data: config, isLoading } = useQuery({ queryKey: ['config'], queryFn: configApi.get });
+  const clientId = config?.googleClientId;
 
   useEffect(() => {
-    const clientId = config?.googleClientId;
     if (!clientId || !ref.current) return undefined;
+    const container = ref.current;
     let cancelled = false;
 
     loadGsi()
       .then(() => {
-        if (cancelled || !ref.current) return;
+        if (cancelled || !container) return;
         window.google.accounts.id.initialize({
           client_id: clientId,
           callback: (resp) => dispatch(loginWithGoogle(resp.credential)),
         });
-        window.google.accounts.id.renderButton(ref.current, {
+        // Clear any button GSI rendered on a previous effect run before
+        // re-rendering. Otherwise a second renderButton() stacks another GSI
+        // iframe and orphans the first one's window — clicking then throws
+        // "Cannot read properties of null (reading 'postMessage')" from GSI.
+        container.innerHTML = '';
+        window.google.accounts.id.renderButton(container, {
           theme: 'filled_blue',
           size: 'large',
           shape: 'pill',
@@ -52,8 +58,13 @@ export function GoogleSignInButton() {
 
     return () => {
       cancelled = true;
+      // Dismiss any pending GSI prompt/flow tied to this mount.
+      window.google?.accounts?.id?.cancel?.();
     };
-  }, [config, dispatch]);
+    // Depend on the primitive clientId, not the `config` object — React Query
+    // hands back a new object reference on every refocus refetch, which would
+    // otherwise re-run this effect needlessly.
+  }, [clientId, dispatch]);
 
   if (isLoading) return <Spinner />;
   if (!config?.googleClientId) {

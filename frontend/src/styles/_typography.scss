@@ -1,0 +1,47 @@
+@use 'mixins' as *;
+
+// ───────────── Fluid type & spacing tokens ─────────────
+// Exposed as CSS custom properties so components can opt in via var(--fs-*)
+// without re-running Sass math. Each scales smoothly between 360px and 1280px
+// viewports, then clamps so phones stay legible and ultra-wide never balloons.
+:root {
+  --fs-xs: #{fluid(0.72rem, 0.78rem)};
+  --fs-sm: #{fluid(0.82rem, 0.9rem)};
+  --fs-base: #{fluid(0.94rem, 1rem)};
+  --fs-md: #{fluid(1rem, 1.1rem)};
+  --fs-lg: #{fluid(1.1rem, 1.3rem)};
+  --fs-xl: #{fluid(1.3rem, 1.6rem)};
+  --fs-2xl: #{fluid(1.55rem, 2.1rem)};
+  --fs-3xl: #{fluid(1.9rem, 3rem)};
+
+  // Fluid layout rhythm — gutters and section gaps grow with the viewport.
+  --gutter: #{fluid(1rem, 2rem)};
+  --section-gap: #{fluid(1.25rem, 2.5rem)};
+  --stack-gap: #{fluid(0.875rem, 1.25rem)};
+
+  // Line lengths kept in the readable 45–75ch band.
+  --measure: 68ch;
+}
+
+// Fluid type utility classes (optional opt-in).
+.text-xs {
+  font-size: var(--fs-xs);
+}
+.text-sm {
+  font-size: var(--fs-sm);
+}
+.text-base {
+  font-size: var(--fs-base);
+}
+.text-lg {
+  font-size: var(--fs-lg);
+}
+.text-xl {
+  font-size: var(--fs-xl);
+}
+.text-2xl {
+  font-size: var(--fs-2xl);
+}
+.text-3xl {
+  font-size: var(--fs-3xl);
+}

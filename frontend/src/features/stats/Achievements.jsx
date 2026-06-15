@@ -1,6 +1,8 @@
 import { useAchievements } from './statsQueries.js';
+import { useTranslation } from '../../i18n';
 
 export function Achievements() {
+  const { t } = useTranslation();
   const { data } = useAchievements();
   if (!data) return null;
   const { badges, earnedCount, total } = data;
@@ -8,7 +10,7 @@ export function Achievements() {
   return (
     <div className="stack">
       <div className="spread">
-        <h2 style={{ fontSize: '1.1rem' }}>Achievements</h2>
+        <h2 style={{ fontSize: 'var(--fs-lg)' }}>{t('achievements.title')}</h2>
         <span className="pill pill--brand">
           {earnedCount}/{total}
         </span>
@@ -27,7 +29,7 @@ export function Achievements() {
               </span>
               <span className="badge__name">{b.name}</span>
               {b.earned ? (
-                <span className="badge__done">Unlocked</span>
+                <span className="badge__done">{t('achievements.unlocked')}</span>
               ) : (
                 <span className="badge__progress">
                   {b.progress.current}/{b.progress.target}

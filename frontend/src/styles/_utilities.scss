@@ -1,0 +1,68 @@
+@use 'tokens' as *;
+@use 'mixins' as *;
+
+// ───────────── Responsive visibility ─────────────
+// Prefer adapting one layout over hiding content; use sparingly for
+// affordances that genuinely don't belong on a given device class.
+.hide-mobile {
+  @include down('md') {
+    display: none !important;
+  }
+}
+.hide-tablet-up {
+  @include up('md') {
+    display: none !important;
+  }
+}
+.hide-desktop {
+  @include up('lg') {
+    display: none !important;
+  }
+}
+.show-desktop {
+  display: none !important;
+  @include up('lg') {
+    display: revert !important;
+  }
+}
+
+// ───────────── Responsive spacing helpers ─────────────
+.section-gap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+}
+.gutter-pad {
+  padding-inline: var(--gutter);
+}
+
+// ───────────── RTL icon mirroring ─────────────
+// Chevrons / directional arrows point the other way in RTL.
+[dir='rtl'] svg[data-icon='back'],
+[dir='rtl'] svg[data-icon='forward'],
+[dir='rtl'] svg[data-icon='logout'] {
+  transform: scaleX(-1);
+}
+
+// ───────────── Misc ─────────────
+.no-scroll {
+  overflow: hidden;
+}
+.full-bleed {
+  width: 100%;
+}
+.safe-bottom {
+  @include safe-bottom;
+}
+// Only meaningful to assistive tech.
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

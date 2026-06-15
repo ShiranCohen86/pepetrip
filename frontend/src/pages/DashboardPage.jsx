@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTrips } from '../features/trips/tripQueries.js';
 import { TripCard } from '../features/trips/TripCard.jsx';
 import { Button, EmptyState, Skeleton, Icon } from '../components/ui';
+import { useTranslation } from '../i18n';
 
 function LoadingGrid() {
   return (
@@ -20,16 +21,17 @@ function LoadingGrid() {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { data, isLoading, isError, error } = useTrips();
   const trips = data?.trips ?? [];
 
   return (
     <div>
       <div className="page-head">
-        <h1>Your trips</h1>
+        <h1>{t('dashboard.title')}</h1>
         <Link to="/trips/new">
           <Button variant="primary" size="sm">
-            <Icon name="plus" size={18} /> New
+            <Icon name="plus" size={18} /> {t('common.new')}
           </Button>
         </Link>
       </div>
@@ -37,7 +39,7 @@ export default function DashboardPage() {
       {isLoading && <LoadingGrid />}
 
       {isError && (
-        <EmptyState emoji="⚠️" title="Couldn’t load your trips">
+        <EmptyState emoji="⚠️" title={t('dashboard.loadError')}>
           {error?.message}
         </EmptyState>
       )}
@@ -45,14 +47,14 @@ export default function DashboardPage() {
       {!isLoading && !isError && trips.length === 0 && (
         <EmptyState
           emoji="🧳"
-          title="No trips yet"
+          title={t('dashboard.emptyTitle')}
           action={
             <Link to="/trips/new">
-              <Button variant="primary">Plan your first trip</Button>
+              <Button variant="primary">{t('dashboard.planFirst')}</Button>
             </Link>
           }
         >
-          Tell the AI where you’re headed and get a full day-by-day plan in seconds.
+          {t('dashboard.emptyBody')}
         </EmptyState>
       )}
 

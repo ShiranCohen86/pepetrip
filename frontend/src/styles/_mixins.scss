@@ -1,9 +1,82 @@
 @use 'tokens' as *;
+@use 'sass:map';
+@use 'sass:math';
 
-@mixin up($bp) {
-  @media (min-width: $bp) {
+// Resolve a breakpoint name ('md') or pass a raw length straight through (768px).
+@function bp($name) {
+  @if map.has-key($breakpoints, $name) {
+    @return map.get($breakpoints, $name);
+  }
+  @return $name;
+}
+
+// Min-width (mobile-first). Back-compatible: `up($bp-md)` and `up('md')` both work.
+@mixin up($name) {
+  @media (min-width: bp($name)) {
     @content;
   }
+}
+
+// Max-width (desktop-first). 0.02px keeps it from overlapping `up()`.
+@mixin down($name) {
+  @media (max-width: (bp($name) - 0.02px)) {
+    @content;
+  }
+}
+
+// Bounded range, e.g. tablet-only: `between('md', 'lg')`.
+@mixin between($min, $max) {
+  @media (min-width: bp($min)) and (max-width: (bp($max) - 0.02px)) {
+    @content;
+  }
+}
+
+@mixin landscape {
+  @media (orientation: landscape) {
+    @content;
+  }
+}
+@mixin portrait {
+  @media (orientation: portrait) {
+    @content;
+  }
+}
+
+// True pointer (mouse/trackpad) — gate hover affordances behind this so they
+// never fire on touch devices.
+@mixin hover-hover {
+  @media (hover: hover) and (pointer: fine) {
+    @content;
+  }
+}
+// Coarse pointer (touch).
+@mixin touch-device {
+  @media (hover: none) and (pointer: coarse) {
+    @content;
+  }
+}
+
+// Guarantee a thumb-friendly hit area without forcing visual size.
+@mixin touch-target($size: $touch-target) {
+  min-width: $size;
+  min-height: $size;
+}
+
+@function strip-unit($v) {
+  @return math.div($v, ($v * 0 + 1));
+}
+
+// Fluid value that scales linearly between two viewport widths, then clamps.
+// min/max are rem; viewports are px (converted to rem at 16px root).
+// Usage: `font-size: fluid(1rem, 1.6rem);`
+@function fluid($min, $max, $min-vw: 360px, $max-vw: 1280px) {
+  $min-r: strip-unit($min);
+  $max-r: strip-unit($max);
+  $minvw-r: math.div(strip-unit($min-vw), 16);
+  $maxvw-r: math.div(strip-unit($max-vw), 16);
+  $slope: math.div(($max-r - $min-r), ($maxvw-r - $minvw-r));
+  $intercept: $min-r - $slope * $minvw-r;
+  @return clamp(#{$min}, #{$intercept}rem + #{$slope * 100}vw, #{$max});
 }
 
 @mixin tap {

@@ -2,8 +2,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Icon } from '../../components/ui';
 import { activityEmoji, formatCurrency } from '../../utils/format.js';
+import { useTranslation } from '../../i18n';
 
 export function SortableActivity({ activity, onEdit, onDelete }) {
+  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: activity.id,
   });
@@ -15,7 +17,7 @@ export function SortableActivity({ activity, onEdit, onDelete }) {
       <button
         type="button"
         className="activity__handle"
-        aria-label="Drag to reorder"
+        aria-label={t('itinerary.dragHandle')}
         {...attributes}
         {...listeners}
       >
@@ -54,7 +56,7 @@ export function SortableActivity({ activity, onEdit, onDelete }) {
           type="button"
           className="btn--icon"
           onClick={onDelete}
-          aria-label={`Delete ${activity.title}`}
+          aria-label={t('itinerary.deleteAria', { title: activity.title })}
         >
           <Icon name="trash" size={16} />
         </button>

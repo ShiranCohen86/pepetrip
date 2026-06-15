@@ -7,6 +7,7 @@ import { createTripSchema, TRAVEL_STYLES, TRAVEL_STYLE_LABELS, CURRENCIES } from
 import { tripApi } from '../services/tripApi.js';
 import { tripKeys } from '../features/trips/tripQueries.js';
 import { Button, Icon, Spinner, useToast } from '../components/ui';
+import { useTranslation } from '../i18n';
 
 const iso = (d) => d.toISOString().slice(0, 10);
 const today = new Date();
@@ -29,8 +30,11 @@ export default function CreateTripPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const toast = useToast();
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
+
+  const STEPS = [t('createTrip.stepDestination'), t('createTrip.stepDetails'), t('createTrip.stepReview')];
 
   const {
     register,
@@ -61,11 +65,11 @@ export default function CreateTripPage() {
         const result = await tripApi.generate(trip.id);
         qc.setQueryData(tripKeys.detail(trip.id), result);
       } catch (genErr) {
-        toast(`Trip saved — AI planning failed: ${genErr.message}`);
+        toast(t('createTrip.savedAiFailed', { error: genErr.message }));
       }
       navigate(`/trips/${trip.id}`);
     } catch (err) {
-      toast(err.message || 'Could not create the trip');
+      toast(err.message || t('createTrip.createFailed'));
       setBusy(false);
     }
   };
@@ -74,34 +78,43 @@ export default function CreateTripPage() {
     return (
       <div className="splash" style={{ minHeight: '60dvh' }}>
         <Spinner size="lg" />
-        <p>Planning your trip with AI…</p>
+        <p>{t('createTrip.planning')}</p>
         <p className="muted" style={{ fontSize: '0.85rem' }}>
-          Mapping out your days — this usually takes a few seconds.
+          {t('createTrip.planningHint')}
         </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form className="wizard" onSubmit={handleSubmit(onSubmit)}>
       <div className="page-head">
-        <h1>Plan a trip</h1>
+        <h1>{t('createTrip.title')}</h1>
       </div>
 
-      <div className="wizard__progress">
-        <div className="wizard__bar" style={{ width: `${((step + 1) / 3) * 100}%` }} />
-      </div>
+      <ol className="stepper" aria-label={t('createTrip.title')}>
+        {STEPS.map((label, i) => (
+          <li
+            key={label}
+            className={`stepper__step${i === step ? ' is-active' : ''}${i < step ? ' is-done' : ''}`}
+            aria-current={i === step ? 'step' : undefined}
+          >
+            <span className="stepper__dot" />
+            {label}
+          </li>
+        ))}
+      </ol>
 
       {step === 0 && (
         <div className="stack">
           <div className="field">
             <label className="field__label" htmlFor="dest">
-              Where are you going?
+              {t('createTrip.whereGoing')}
             </label>
             <input
               id="dest"
               className="input"
-              placeholder="e.g. Kyoto, Japan"
+              placeholder={t('createTrip.destPlaceholder')}
               autoComplete="off"
               {...register('destination.label')}
             />
@@ -112,14 +125,14 @@ export default function CreateTripPage() {
           <div className="field__row">
             <div className="field">
               <label className="field__label" htmlFor="start">
-                Start
+                {t('createTrip.start')}
               </label>
               <input id="start" type="date" className="input" {...register('startDate')} />
               {errors.startDate && <span className="field__error">{errors.startDate.message}</span>}
             </div>
             <div className="field">
               <label className="field__label" htmlFor="end">
-                End
+                {t('createTrip.end')}
               </label>
               <input id="end" type="date" className="input" {...register('endDate')} />
               {errors.endDate && <span className="field__error">{errors.endDate.message}</span>}
@@ -133,11 +146,12 @@ export default function CreateTripPage() {
           <div className="field__row">
             <div className="field">
               <label className="field__label" htmlFor="travelers">
-                Travelers
+                {t('createTrip.travelers')}
               </label>
               <input
                 id="travelers"
                 type="number"
+                inputMode="numeric"
                 min="1"
                 className="input"
                 {...register('travelers', { valueAsNumber: true })}
@@ -146,7 +160,7 @@ export default function CreateTripPage() {
             </div>
             <div className="field">
               <label className="field__label" htmlFor="currency">
-                Currency
+                {t('createTrip.currency')}
               </label>
               <select id="currency" className="select" {...register('budget.currency')}>
                 {CURRENCIES.map((c) => (
@@ -159,11 +173,12 @@ export default function CreateTripPage() {
           </div>
           <div className="field">
             <label className="field__label" htmlFor="budget">
-              Total budget
+              {t('createTrip.totalBudget')}
             </label>
             <input
               id="budget"
               type="number"
+              inputMode="decimal"
               min="0"
               className="input"
               {...register('budget.amount', { valueAsNumber: true })}
@@ -173,7 +188,7 @@ export default function CreateTripPage() {
             )}
           </div>
           <div className="field">
-            <span className="field__label">Travel style</span>
+            <span className="field__label">{t('createTrip.travelStyle')}</span>
             <div className="chips">
               {TRAVEL_STYLES.map((style) => (
                 <button
@@ -198,20 +213,24 @@ export default function CreateTripPage() {
         <div className="stack">
           <div className="field">
             <label className="field__label" htmlFor="notes">
-              Anything specific? <span className="muted">(optional)</span>
+              {t('createTrip.anythingSpecific')} <span className="muted">{t('common.optional')}</span>
             </label>
             <textarea
               id="notes"
               className="textarea"
-              placeholder="Foodie spots, must-sees, accessibility needs, pace…"
+              placeholder={t('createTrip.notesPlaceholder')}
               {...register('notes')}
             />
           </div>
           <div className="card">
-            <strong>{watch('destination.label') || 'Your trip'}</strong>
+            <strong>{watch('destination.label') || t('createTrip.yourTrip')}</strong>
             <div className="muted" style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>
-              {watch('startDate')} → {watch('endDate')} · {watch('travelers')} travelers ·{' '}
-              {TRAVEL_STYLE_LABELS[travelStyle]}
+              {t('createTrip.summary', {
+                start: watch('startDate'),
+                end: watch('endDate'),
+                travelers: watch('travelers'),
+                style: TRAVEL_STYLE_LABELS[travelStyle],
+              })}
             </div>
           </div>
         </div>
@@ -220,16 +239,16 @@ export default function CreateTripPage() {
       <div className="wizard__actions">
         {step > 0 && (
           <Button type="button" variant="ghost" onClick={() => setStep((s) => s - 1)}>
-            <Icon name="back" size={18} /> Back
+            <Icon name="back" size={18} /> {t('common.back')}
           </Button>
         )}
         {step < 2 ? (
           <Button type="button" variant="primary" block onClick={next}>
-            Continue
+            {t('common.continue')}
           </Button>
         ) : (
           <Button type="submit" variant="primary" block>
-            <Icon name="sparkles" size={18} /> Generate with AI
+            <Icon name="sparkles" size={18} /> {t('createTrip.generate')}
           </Button>
         )}
       </div>

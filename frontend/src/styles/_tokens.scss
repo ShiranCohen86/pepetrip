@@ -19,17 +19,32 @@ $radius-lg: 18px;
 $radius-xl: 26px;
 $radius-full: 999px;
 
-// Breakpoints (mobile-first)
-$bp-sm: 480px;
-$bp-md: 768px;
-$bp-lg: 1024px;
-$bp-xl: 1280px;
+// Breakpoints (mobile-first) — single source of truth, mirrored in
+// hooks/responsive/breakpoints.js. Keep the two in sync.
+$bp-sm: 480px; // large phone
+$bp-md: 768px; // tablet portrait
+$bp-lg: 1024px; // tablet landscape / small laptop
+$bp-xl: 1280px; // desktop
+$bp-2xl: 1536px; // large desktop / ultra-wide
+
+// Named map so mixins can take 'md' instead of a raw length.
+$breakpoints: (
+  'sm': $bp-sm,
+  'md': $bp-md,
+  'lg': $bp-lg,
+  'xl': $bp-xl,
+  '2xl': $bp-2xl,
+);
 
 // Layout
 $header-h: 56px;
 $bottom-nav-h: 64px;
-$content-max: 720px;
-$wide-max: 1120px;
+$sidebar-w: 248px; // permanent desktop sidebar
+$rail-w: 76px; // collapsed tablet rail
+$content-max: 720px; // comfortable reading column (mobile/legacy)
+$wide-max: 1120px; // dense desktop column
+$ultra-max: 1440px; // cap for ultra-wide so lines never run too long
+$touch-target: 44px; // WCAG 2.5.5 minimum interactive size
 
 // Type
 $font-sans:
@@ -43,7 +58,10 @@ $font-sans:
   sans-serif;
 
 // z-index
+$z-skiplink: 200;
 $z-header: 50;
+$z-sidebar: 55;
 $z-nav: 60;
+$z-drawer: 90;
 $z-sheet: 100;
 $z-toast: 120;

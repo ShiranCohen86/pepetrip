@@ -17,6 +17,7 @@ import {
 import { SortableActivity } from './SortableActivity.jsx';
 import { formatDate } from '../../utils/format.js';
 import { Icon } from '../../components/ui';
+import { useTranslation } from '../../i18n';
 
 const buildContainers = (trip) =>
   (trip.days || []).map((d) => ({
@@ -36,11 +37,12 @@ const buildActivityMap = (trip) => {
 };
 
 function DayColumn({ container, activityMap, onEditActivity, onAddActivity, onDeleteActivity }) {
+  const { t } = useTranslation();
   const { setNodeRef } = useDroppable({ id: container.id });
   return (
     <section className="day">
       <div className="day__head">
-        <h2>Day {container.dayNumber}</h2>
+        <h2>{t('itinerary.day', { n: container.dayNumber })}</h2>
         <span className="muted">
           {formatDate(container.date, { weekday: 'short', month: 'short', day: 'numeric' })}
         </span>
@@ -67,7 +69,7 @@ function DayColumn({ container, activityMap, onEditActivity, onAddActivity, onDe
         </SortableContext>
         {container.activityIds.length === 0 && (
           <p className="muted center" style={{ padding: '0.5rem' }}>
-            No activities yet
+            {t('itinerary.noActivities')}
           </p>
         )}
         <button
@@ -76,7 +78,7 @@ function DayColumn({ container, activityMap, onEditActivity, onAddActivity, onDe
           style={{ alignSelf: 'flex-start' }}
           onClick={() => onAddActivity(container.id)}
         >
-          <Icon name="plus" size={16} /> Add activity
+          <Icon name="plus" size={16} /> {t('itinerary.addActivity')}
         </button>
       </div>
     </section>

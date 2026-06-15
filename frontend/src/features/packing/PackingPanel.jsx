@@ -9,8 +9,10 @@ import {
 } from './packingQueries.js';
 import { Button, Icon, Spinner, EmptyState, useToast } from '../../components/ui';
 import { packingEmoji } from '../../utils/format.js';
+import { useTranslation } from '../../i18n';
 
 export function PackingPanel({ tripId }) {
+  const { t } = useTranslation();
   const toast = useToast();
   const { data, isLoading, isError } = usePacking(tripId);
   const generate = useGeneratePacking(tripId);
@@ -27,7 +29,7 @@ export function PackingPanel({ tripId }) {
     );
   }
   if (isError) {
-    return <EmptyState emoji="⚠️" title="Couldn't load packing list" />;
+    return <EmptyState emoji="⚠️" title={t('packing.loadError')} />;
   }
 
   const items = data?.packing?.items ?? [];
@@ -41,7 +43,7 @@ export function PackingPanel({ tripId }) {
 
   const onGenerate = () =>
     generate.mutate(undefined, {
-      onSuccess: () => toast('Packing list ready'),
+      onSuccess: () => toast(t('packing.ready')),
       onError: (e) => toast(e.message),
     });
 
@@ -59,14 +61,14 @@ export function PackingPanel({ tripId }) {
     return (
       <EmptyState
         emoji="🧳"
-        title="No packing list yet"
+        title={t('packing.noListTitle')}
         action={
           <Button variant="primary" onClick={onGenerate} loading={generate.isPending}>
-            <Icon name="sparkles" size={18} /> Generate with AI
+            <Icon name="sparkles" size={18} /> {t('common.generateAi')}
           </Button>
         }
       >
-        Let the AI build a checklist tailored to your destination, dates and style.
+        {t('packing.noListBody')}
       </EmptyState>
     );
   }
@@ -75,11 +77,9 @@ export function PackingPanel({ tripId }) {
     <div className="stack">
       <div className="card">
         <div className="spread">
-          <strong>
-            {packed} / {items.length} packed
-          </strong>
+          <strong>{t('packing.packedCount', { packed, total: items.length })}</strong>
           <Button size="sm" variant="ghost" onClick={onGenerate} loading={generate.isPending}>
-            <Icon name="sparkles" size={16} /> Regenerate
+            <Icon name="sparkles" size={16} /> {t('common.regenerate')}
           </Button>
         </div>
         <div className="budget-bar" aria-hidden="true" style={{ marginTop: '0.5rem' }}>
@@ -112,7 +112,7 @@ export function PackingPanel({ tripId }) {
                   onClick={() =>
                     deleteItem.mutate(item.id, { onError: (err) => toast(err.message) })
                   }
-                  aria-label={`Remove ${item.label}`}
+                  aria-label={t('packing.removeAria', { label: item.label })}
                 >
                   <Icon name="x" size={16} />
                 </button>
@@ -127,8 +127,8 @@ export function PackingPanel({ tripId }) {
           className="input grow"
           value={newLabel}
           onChange={(e) => setNewLabel(e.target.value)}
-          placeholder="Add an item…"
-          aria-label="Add packing item"
+          placeholder={t('packing.addPlaceholder')}
+          aria-label={t('packing.addAria')}
         />
         <Button type="submit" loading={addItem.isPending}>
           <Icon name="plus" size={18} />
