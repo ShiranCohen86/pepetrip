@@ -58,5 +58,9 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    // The 3D globe (three.js) and map (maplibre) vendor bundles are legitimately
+    // large; raise the warning threshold so the build log isn't noisy. They load
+    // only on their own routes, so initial-page payload is unaffected.
+    chunkSizeWarningLimit: 1000,
   },
 });
