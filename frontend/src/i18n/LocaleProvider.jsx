@@ -1,7 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { DICTIONARIES, LOCALES, dirForLocale, translate } from './translate.js';
+import { setFormatLocale } from '../utils/format.js';
 
 const STORAGE_KEY = 'pepetrip.locale';
+// Map app locales to region-qualified BCP-47 tags for Intl date/number formatting.
+const INTL_LOCALE = { en: 'en-US', he: 'he-IL' };
 const LocaleContext = createContext(null);
 
 function detectInitialLocale() {
@@ -19,6 +22,10 @@ function detectInitialLocale() {
 export function LocaleProvider({ children }) {
   const [locale, setLocaleState] = useState(detectInitialLocale);
   const dir = dirForLocale(locale);
+
+  // Set synchronously during render (before children render) so formatted dates
+  // and currency pick up the new locale on the same pass as the language switch.
+  setFormatLocale(INTL_LOCALE[locale] || locale);
 
   // Reflect language + direction onto <html> (mirrors useThemeEffect's pattern)
   // so the whole document — including portals — flips for RTL.

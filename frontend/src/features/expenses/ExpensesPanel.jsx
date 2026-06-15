@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { EXPENSE_CATEGORY_LABELS } from '@pepetrip/shared';
 import {
   useExpenses,
   useCreateExpense,
@@ -90,7 +89,7 @@ export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
           <div className="chips" style={{ marginTop: '0.75rem' }}>
             {topCategories.map(([cat, val]) => (
               <span key={cat} className="pill">
-                {expenseEmoji(cat)} {EXPENSE_CATEGORY_LABELS[cat]} ·{' '}
+                {expenseEmoji(cat)} {t(`expenseCategories.${cat}`)} ·{' '}
                 {formatCurrency(val, summary.currency)}
               </span>
             ))}
@@ -120,7 +119,7 @@ export function ExpensesPanel({ tripId, tripCurrency = 'USD' }) {
               >
                 <div className="expense-row__label">{e.label}</div>
                 <div className="muted">
-                  {EXPENSE_CATEGORY_LABELS[e.category]}
+                  {t(`expenseCategories.${e.category}`)}
                   {e.date ? ` · ${formatDate(e.date)}` : ''}
                 </div>
               </button>

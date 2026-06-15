@@ -45,9 +45,27 @@ export default function TripDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const { isDesktop, isLargeDesktop } = useDevice();
   const twoPane = isDesktop || isLargeDesktop; // ≥1024px → split itinerary + panel
+
+  // ARIA roving tabs: ←/→ (RTL-aware), Home/End move focus + activate.
+  const handleTabKeys = (e) => {
+    if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) return;
+    const els = [...e.currentTarget.querySelectorAll('[role="tab"]')];
+    const idx = els.indexOf(document.activeElement);
+    if (idx === -1) return;
+    e.preventDefault();
+    const fwd = isRTL ? 'ArrowLeft' : 'ArrowRight';
+    const back = isRTL ? 'ArrowRight' : 'ArrowLeft';
+    let next = idx;
+    if (e.key === fwd) next = (idx + 1) % els.length;
+    else if (e.key === back) next = (idx - 1 + els.length) % els.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = els.length - 1;
+    els[next].focus();
+    els[next].click();
+  };
 
   const { data, isLoading, isError, error } = useTrip(id);
   const trip = data?.trip;
@@ -195,6 +213,7 @@ export default function TripDetailPage() {
       type="button"
       role="tab"
       aria-selected={selected}
+      tabIndex={selected ? 0 : -1}
       className={`tab${selected ? ' is-active' : ''}`}
       onClick={onSelect}
     >
@@ -244,7 +263,12 @@ export default function TripDetailPage() {
             {renderPlan()}
           </section>
           <aside className="split__aside">
-            <div className="tabs" role="tablist" aria-label={t('tripDetail.sections')}>
+            <div
+              className="tabs"
+              role="tablist"
+              aria-label={t('tripDetail.sections')}
+              onKeyDown={handleTabKeys}
+            >
               {secondaryTabs.map((tb) => (
                 <TabButton
                   key={tb.key}
@@ -259,7 +283,12 @@ export default function TripDetailPage() {
         </div>
       ) : (
         <>
-          <div className="tabs" role="tablist" aria-label={t('tripDetail.sections')}>
+          <div
+            className="tabs"
+            role="tablist"
+            aria-label={t('tripDetail.sections')}
+            onKeyDown={handleTabKeys}
+          >
             {TABS.map((tb) => (
               <TabButton
                 key={tb.key}

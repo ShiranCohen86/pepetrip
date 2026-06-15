@@ -1,12 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  createExpenseSchema,
-  EXPENSE_CATEGORIES,
-  EXPENSE_CATEGORY_LABELS,
-  CURRENCIES,
-} from '@pepetrip/shared';
+import { createExpenseSchema, EXPENSE_CATEGORIES, CURRENCIES } from '@pepetrip/shared';
 import { BottomSheet, Button } from '../../components/ui';
 import { useTranslation } from '../../i18n';
 
@@ -111,7 +106,7 @@ export function ExpenseEditSheet({ open, onClose, expense, currency = 'USD', sav
                 aria-pressed={category === c}
                 onClick={() => setValue('category', c, { shouldValidate: true })}
               >
-                {EXPENSE_CATEGORY_LABELS[c]}
+                {t(`expenseCategories.${c}`)}
               </button>
             ))}
           </div>

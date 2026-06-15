@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ACTIVITY_TYPES, ACTIVITY_TYPE_LABELS } from '@pepetrip/shared';
+import { ACTIVITY_TYPES } from '@pepetrip/shared';
 import { BottomSheet, Button, Icon } from '../../components/ui';
 import { useTranslation } from '../../i18n';
 
@@ -83,7 +83,7 @@ export function ActivityEditSheet({ open, onClose, activity, currency, saving, o
             <select id="a-type" className="select" value={form.type} onChange={set('type')}>
               {ACTIVITY_TYPES.map((type) => (
                 <option key={type} value={type}>
-                  {ACTIVITY_TYPE_LABELS[type]}
+                  {t(`activityTypes.${type}`)}
                 </option>
               ))}
             </select>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PACKING_CATEGORIES, PACKING_CATEGORY_LABELS } from '@pepetrip/shared';
+import { PACKING_CATEGORIES } from '@pepetrip/shared';
 import {
   usePacking,
   useGeneratePacking,
@@ -90,7 +90,7 @@ export function PackingPanel({ tripId }) {
       {grouped.map(({ cat, items: catItems }) => (
         <section key={cat}>
           <h3 className="packing__group">
-            {packingEmoji(cat)} {PACKING_CATEGORY_LABELS[cat]}
+            {packingEmoji(cat)} {t(`packingCategories.${cat}`)}
           </h3>
           <div className="stack" style={{ gap: '0.4rem' }}>
             {catItems.map((item) => (

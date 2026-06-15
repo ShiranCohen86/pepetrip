@@ -1,7 +1,17 @@
+// Active BCP-47 locale for Intl formatting, kept in sync by the i18n
+// LocaleProvider so dates/currency follow the in-app language (not the browser).
+// undefined = browser default until a locale is set.
+let activeLocale;
+
+/** Set the locale used by formatDate / formatCurrency. Called from LocaleProvider. */
+export function setFormatLocale(locale) {
+  activeLocale = locale;
+}
+
 export function formatCurrency(amount, currency = 'USD') {
   if (amount == null) return '';
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat(activeLocale, {
       style: 'currency',
       currency,
       maximumFractionDigits: 0,
@@ -13,7 +23,7 @@ export function formatCurrency(amount, currency = 'USD') {
 
 export function formatDate(date, opts = { month: 'short', day: 'numeric' }) {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(undefined, opts);
+  return new Date(date).toLocaleDateString(activeLocale, opts);
 }
 
 export function formatDateRange(start, end) {
