@@ -35,7 +35,15 @@ export function createApp() {
   app.set('trust proxy', 1);
 
   app.use(pinoHttp({ logger, autoLogging: !config.isTest }));
-  app.use(helmet({ contentSecurityPolicy: config.isProd ? prodCsp : false }));
+  app.use(
+    helmet({
+      contentSecurityPolicy: config.isProd ? prodCsp : false,
+      // Google Identity Services signs in via a popup; helmet's default COOP
+      // (same-origin) severs window.opener so the popup can't post the credential
+      // back to the page — it just hangs blank. Allow popups to keep the opener.
+      crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+    }),
+  );
   // CORS is only relevant in dev (cross-origin Vite). In prod the app is same-origin.
   app.use(
     cors({
